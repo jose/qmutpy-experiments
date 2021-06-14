@@ -27,7 +27,17 @@ _check_python_requirements() {
   fi
 
   # Check whether Python 3.6 is available
-  python3 -c 'import sys; if not (sys.version_info.major == 3 and sys.version_info.minor == 6): print("You are using Python {}.{}.".format(sys.version_info.major, sys.version_info.minor)); print("This script requires Python 3.6!"); sys.exit(1)' || return 1
+  python3 << END
+import sys
+if not (sys.version_info.major == 3 and sys.version_info.minor == 6):
+  print("You are using Python {}.{}.".format(sys.version_info.major, sys.version_info.minor))
+  print("This script requires Python 3.6!")
+  sys.exit(1)
+sys.exit(0)
+END
+  if [ "$?" -ne "0" ]; then
+    die
+  fi
 
   # Check whether 'pip3' is available
   pip3 --version > /dev/null 2>&1
