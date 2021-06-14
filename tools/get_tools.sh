@@ -3,6 +3,7 @@
 # ------------------------------------------------------------------------------
 # This script downloads and sets up the following tools:
 #   - [Simple Python Version Management: pyenv](https://github.com/pyenv/pyenv)
+#     and [pyenv-virtualenv](https://github.com/pyenv/pyenv-virtualenv)
 #   - [QMutPy](https://github.com/danielfobooss/mutpy/tree/all_gates)
 #   - [Qiskit Aqua](https://github.com/Qiskit/qiskit-aqua/tree/stable/0.9)
 #   - [R](https://www.r-project.org)
@@ -26,44 +27,22 @@ git --version > /dev/null 2>&1 || die "[ERROR] Could not find 'git' to clone git
 # Check whether 'Rscript' is available
 Rscript --version > /dev/null 2>&1 || die "[ERROR] Could not find 'Rscript' to perform, e.g., statistical analysis. Please install 'Rscript' and re-run the script."
 
-# ------------------------------------------------------------------------- Main
+# ------------------------------------------------------------------------- Util
 
-#
-# Get PyEnv
-#
-
-echo ""
-echo "Setting up pyenv..."
-
-PYENV_DIR="$SCRIPT_DIR/pyenv"
-
-if [ ! -d "$PYENV_DIR" ]; then
-  # pyenv requires some time to install and build, therefore do it if it is required
-
-  git clone https://github.com/pyenv/pyenv.git "$PYENV_DIR"
-  if [ "$?" -ne "0" ] || [ ! -d "$PYENV_DIR" ]; then
-    die "[ERROR] Clone of 'pyenv' failed!"
+_install_python_version_x() {
+  local USAGE="Usage: ${FUNCNAME[0]} <major> <minor> <micro>"
+  if [ "$#" != 3 ] ; then
+    echo "$USAGE" >&2
+    return 1
   fi
 
-  export PYENV_ROOT="$PYENV_DIR"
-  export PATH="$PYENV_ROOT/bin:$PATH"
+  local major="$1"
+  local minor="$2"
+  local micro="$3"
 
-  git clone https://github.com/pyenv/pyenv-virtualenv.git "$PYENV_ROOT/plugins/pyenv-virtualenv"
-  if [ "$?" -ne "0" ] || [ ! -d "$PYENV_ROOT/plugins/pyenv-virtualenv" ]; then
-    die "[ERROR] Clone of 'pyenv-virtualenv' failed!"
-  fi
-
-  # Check whether 'pyenv' is (now) available
-  pyenv --version > /dev/null 2>&1 || die "[ERROR] Could not find 'pyenv' to setup Python's virtual environment."
-
-  eval "$(pyenv init --path)" || die "[ERROR] Failed to init pyenv!"
-  eval "$(pyenv virtualenv-init -)" || die "[ERROR] Failed to init pyenv-virtualenv!"
-
-  # Install Python v3.7.0
-  pyenv install -v 3.7.0
-
+  pyenv install -v "$major.$minor.$micro"
   if [ "$?" -ne "0" ]; then
-    echo "[ERROR] Failed to install Python v3.7.0 with pyenv.  Most likely reason is due to OS depends not being installed/available." >&2
+    echo "[ERROR] Failed to install Python $major.$minor.$micro with pyenv.  Most likely reason is due to OS depends not being installed/available." >&2
 
     echo "" >&2
     echo "On Ubuntu/Debian please install the following dependencies:" >&2
@@ -87,30 +66,99 @@ if [ ! -d "$PYENV_DIR" ]; then
   fi
 
   # Switch to the version just installed
-  pyenv local 3.7.0 || die "[ERROR] The version just installed is not available to pyenv!"
+  pyenv local "$major.$minor.$micro" || die "[ERROR] Python $major.$minor.$micro is not available to pyenv!"
 
-  python_version=$(python --version)
-  if [ "$python_version" != "Python 3.7.0" ]; then
-    die "[ERROR] System is still using '$python_version' instead of v3.7.0!"
+  python_version=$(python --version 2>&1)
+  if [ "$python_version" != "Python $major.$minor.$micro" ]; then
+    die "[ERROR] System is still using '$python_version' instead of $major.$minor.$micro!"
   fi
 
+  # Upgrade pip
+  pip install pip --upgrade
+
   # Check whether the version just installed is working properly
-  python -m test || die "[ERROR] The version just installed is not working properly!"
+  python -m test || die "[ERROR] Python $major.$minor.$micro is not working properly!"
 
   # Disable/Unload the version just installed
-  rm "$SCRIPT_DIR/.python-version" || die "[ERROR] Failed to remove '$SCRIPT_DIR/.python-version!'"
+  rm ".python-version" || die "[ERROR] Failed to remove '.python-version!'"
 
-  # Create a virtual environment based on the version just installed
-  pyenv virtualenv 3.7.0 3.7.0-qmutpy-and-qiskit-aqua || die "[ERROR] Failed to create virtual environment based on the version just installed!"
-  # Check whether the virtual environment was correctly created it by loading it
-  pyenv activate 3.7.0-qmutpy-and-qiskit-aqua || die "[ERROR] Failed to activate the just created virtual environment!"
-  pyenv deactivate || die "[ERROR] Failed to deactivate the just created virtual environment!"
+  return 0
+}
+
+_create_python_virtual_environment() {
+  local USAGE="Usage: ${FUNCNAME[0]} <major> <minor> <micro> <env name>"
+  if [ "$#" != 4 ] ; then
+    echo "$USAGE" >&2
+    return 1
+  fi
+
+  local major="$1"
+  local minor="$2"
+  local micro="$3"
+  local env_name="$4"
+
+  # Create a virtual environment
+  pyenv virtualenv "$major.$minor.$micro" "$env_name" || die "[ERROR] Failed to create a virtual environment named $env_name for $major.$minor.$micro version!"
+  # Check whether the virtual environment was correctly created it by loading it and then disabling it
+  pyenv local "$env_name" || die "[ERROR] Failed to activate virtual environment $env_name!"
+  # Disable/Unload the virtual environment
+  rm ".python-version" || die "[ERROR] Failed to unload virtual environment $env_name!"
+}
+
+# ------------------------------------------------------------------------- Main
+
+#
+# Get PyEnv
+# https://realpython.com/intro-to-pyenv
+#
+
+echo ""
+echo "Setting up pyenv..."
+
+PYENV_DIR="$SCRIPT_DIR/pyenv"
+
+# Remove any previous file and directory
+rm -rf "$PYENV_DIR"
+
+git clone https://github.com/pyenv/pyenv.git "$PYENV_DIR"
+if [ "$?" -ne "0" ] || [ ! -d "$PYENV_DIR" ]; then
+  die "[ERROR] Clone of 'pyenv' failed!"
 fi
 
+export PYENV_ROOT="$PYENV_DIR"
+export PATH="$PYENV_ROOT/bin:$PATH"
+
+git clone https://github.com/pyenv/pyenv-virtualenv.git "$PYENV_ROOT/plugins/pyenv-virtualenv"
+if [ "$?" -ne "0" ] || [ ! -d "$PYENV_ROOT/plugins/pyenv-virtualenv" ]; then
+  die "[ERROR] Clone of 'pyenv-virtualenv' failed!"
+fi
+
+# Check whether 'pyenv' is (now) available
+pyenv --version > /dev/null 2>&1 || die "[ERROR] Could not find 'pyenv' to setup Python's virtual environment!"
+
+# Init it
+eval "$(pyenv init --path)" || die "[ERROR] Failed to init pyenv!"
+eval "$(pyenv virtualenv-init -)" || die "[ERROR] Failed to init pyenv-virtualenv!"
+
 #
-# Get QMutPy
+# Install required Python version
 #
 
+echo ""
+echo "Install required Python versions..."
+
+# Install v3.7.0
+_install_python_version_x "3" "7" "0" || die
+
+#
+# Create a Python virtual environment per Quantum framework and install QMutPy
+# and the Quantum framework
+#
+
+# Create a Python virtual environment for v3.7.0
+_create_python_virtual_environment "3" "7" "0" "3.7.0-qmutpy-and-qiskit-aqua" || die
+
+# Get qiskit-aqua
 echo ""
 echo "Setting up QMutPy..."
 
@@ -119,7 +167,7 @@ QMUTPY_DIR="$SCRIPT_DIR/qmutpy"
 # Remove any previous file and directory
 rm -rf "$QMUTPY_DIR"
 
-git clone https://github.com/danielfobooss/mutpy "$QMUTPY_DIR"
+git clone https://github.com/danielfobooss/mutpy.git "$QMUTPY_DIR"
 if [ "$?" -ne "0" ] || [ ! -d "$QMUTPY_DIR" ]; then
   die "[ERROR] Clone of 'QMutPy' failed!"
 fi
@@ -130,14 +178,15 @@ cd "$QMUTPY_DIR"
   git checkout all_gates || die "[ERROR] Branch 'all_gates' not found!"
   # Switch to lastest commit
   git checkout a2882cce2652743e449e6bbdc34f25d9c68566cc || die "[ERROR] Commit 'a2882cce2652743e449e6bbdc34f25d9c68566cc' not found!"
-  # Install it
-  python3 setup.py install || die "[ERROR] Failed to install QMutPy!"
+  # Load Python virtual environment
+  pyenv local "3.7.0-qmutpy-and-qiskit-aqua" || die "[ERROR] Failed to load 3.7.0-qmutpy-and-qiskit-aqua virtual environment!"
+  # Install QMutPy
+  python setup.py install || die "[ERROR] Failed to install QMutPy!"
+  # Unload Python virtual environment
+  rm ".python-version" || die "[ERROR] Failed to unload virtual environment!"
 popd > /dev/null 2>&1
 
-#
 # Get qiskit-aqua
-#
-
 echo ""
 echo "Setting up Qiskit Aqua..."
 
@@ -146,7 +195,7 @@ QISKIT_AQUA_DIR="$SCRIPT_DIR/qiskit-aqua"
 # Remove any previous file and directory
 rm -rf "$QISKIT_AQUA_DIR"
 
-git clone https://github.com/Qiskit/qiskit-aqua "$QISKIT_AQUA_DIR"
+git clone https://github.com/Qiskit/qiskit-aqua.git "$QISKIT_AQUA_DIR"
 if [ "$?" -ne "0" ] || [ ! -d "$QISKIT_AQUA_DIR" ]; then
   die "[ERROR] Clone of 'Qiskit Aqua' failed!"
 fi
@@ -157,6 +206,13 @@ cd "$QISKIT_AQUA_DIR"
   git checkout stable/0.9 || die "[ERROR] Branch 'stable/0.9' not found!"
   # Switch to lastest commit
   git checkout 49dab4892691d207aacc3d27ce33c11e9ac08777 || die "[ERROR] Commit '49dab4892691d207aacc3d27ce33c11e9ac08777' not found!"
+  # Load Python virtual environment
+  pyenv local "3.7.0-qmutpy-and-qiskit-aqua" || die "[ERROR] Failed to load 3.7.0-qmutpy-and-qiskit-aqua virtual environment!"
+  # Install Qiskit Aqua
+  pip install setuptools==40.1.0 --upgrade || die "[ERROR] Failed to upgrade 'setuptools' to v40.1.0!"
+  python setup.py install || die "[ERROR] Failed to install Qiskit Aqua!"
+  # Unload Python virtual environment
+  rm ".python-version" || die "[ERROR] Failed to unload virtual environment!"
 popd > /dev/null 2>&1
 
 echo ""
