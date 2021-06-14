@@ -174,7 +174,7 @@ cd "$QMUTPY_DIR"
   # Switch to 'all_gates' branch
   git checkout all_gates || die "[ERROR] Branch 'all_gates' not found!"
   # Switch to lastest commit
-  git checkout a2882cce2652743e449e6bbdc34f25d9c68566cc || die "[ERROR] Commit 'a2882cce2652743e449e6bbdc34f25d9c68566cc' not found!"
+  git checkout 13ab3845b26a18510bf3e0bddd529187f0b86b71 || die "[ERROR] Commit '13ab3845b26a18510bf3e0bddd529187f0b86b71' not found!"
   # Load Python virtual environment
   pyenv local "3.7.0-qmutpy-and-qiskit-aqua" || die "[ERROR] Failed to load 3.7.0-qmutpy-and-qiskit-aqua virtual environment!"
   # Install QMutPy
