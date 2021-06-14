@@ -288,3 +288,9 @@ dmypy.json
 cython_debug/
 
 # ----------------------------------------------------------------------- Custom
+
+# Ignore everything under 'tools/', except the 'get_tools.sh' script, and
+README.md file
+tools/*
+!tools/get_tools.sh
+!tools/README.md
