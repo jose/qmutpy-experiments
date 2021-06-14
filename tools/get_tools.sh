@@ -23,9 +23,6 @@ wget --version > /dev/null 2>&1 || die "[ERROR] Could not find 'wget' to downloa
 # Check whether 'git' is available
 git --version > /dev/null 2>&1 || die "[ERROR] Could not find 'git' to clone git repositories. Please install 'git' and re-run the script."
 
-# Check whether 'python3' and 'pip3' is available
-_check_python_requirements || die "[ERROR] Python is not properly configured!"
-
 # Check whether 'Rscript' is available
 Rscript --version > /dev/null 2>&1 || die "[ERROR] Could not find 'Rscript' to perform, e.g., statistical analysis. Please install 'Rscript' and re-run the script."
 
@@ -50,7 +47,6 @@ if [ -d "$PYENV_DIR" ]; then
 
   export PYENV_ROOT="$PYENV_DIR"
   export PATH="$PYENV_ROOT/bin:$PATH"
-  # export PATH="$PYENV_ROOT/bin:$PYENV_ROOT/shims:$PYENV_ROOT/plugins/pyenv-virtualenv/bin:$PYENV_ROOT/plugins/pyenv-virtualenv/shims:$PATH"
 
   git clone https://github.com/pyenv/pyenv-virtualenv.git "$PYENV_ROOT/plugins/pyenv-virtualenv"
   if [ "$?" -ne "0" ] || [ ! -d "$PYENV_ROOT/plugins/pyenv-virtualenv" ]; then
@@ -101,8 +97,8 @@ if [ -d "$PYENV_DIR" ]; then
   # Disable/Unload the version just installed
   rm "$SCRIPT_DIR/.python-version" || die "[ERROR] Failed to remove '$SCRIPT_DIR/.python-version!'"
 
-  eval "$(pyenv init --path)"
-  eval "$(pyenv virtualenv-init -)"
+  eval "$(pyenv init --path)" || die "[ERROR] Failed to init pyenv!"
+  eval "$(pyenv virtualenv-init -)" || die "[ERROR] Failed to init pyenv-virtualenv!"
 
   # Create a virtual environment based on the version just installed
   pyenv virtualenv 3.7.0 3.7.0-qmutpy-and-qiskit-aqua || die "[ERROR] Failed to create virtual environment based on the version just installed!"
