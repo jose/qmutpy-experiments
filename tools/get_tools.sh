@@ -73,9 +73,6 @@ _install_python_version_x() {
     die "[ERROR] System is still using '$python_version' instead of $major.$minor.$micro!"
   fi
 
-  # Upgrade pip
-  pip install pip --upgrade
-
   # Check whether the version just installed is working properly
   python -m test || die "[ERROR] Python $major.$minor.$micro is not working properly!"
 
@@ -209,8 +206,10 @@ cd "$QISKIT_AQUA_DIR"
   # Load Python virtual environment
   pyenv local "3.7.0-qmutpy-and-qiskit-aqua" || die "[ERROR] Failed to load 3.7.0-qmutpy-and-qiskit-aqua virtual environment!"
   # Install Qiskit Aqua
+  pip install pip --upgrade                || die "[ERROR] Failed to upgrade 'pip'!"
   pip install setuptools==40.1.0 --upgrade || die "[ERROR] Failed to upgrade 'setuptools' to v40.1.0!"
-  python setup.py install || die "[ERROR] Failed to install Qiskit Aqua!"
+  pip install -r requirements-dev.txt      || die "[ERROR] Failed to install dev requirements!"
+  python setup.py install                  || die "[ERROR] Failed to run Qiskit Aqua's setup.py script!"
   # Unload Python virtual environment
   rm ".python-version" || die "[ERROR] Failed to unload virtual environment!"
 popd > /dev/null 2>&1
