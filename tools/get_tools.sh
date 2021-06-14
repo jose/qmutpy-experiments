@@ -2,7 +2,7 @@
 #
 # ------------------------------------------------------------------------------
 # This script downloads and sets up the following tools:
-#   - Python 3.7
+#   - [Simple Python Version Management: pyenv](https://github.com/pyenv/pyenv)
 #   - [QMutPy](https://github.com/danielfobooss/mutpy/tree/all_gates)
 #   - [Qiskit Aqua](https://github.com/Qiskit/qiskit-aqua/tree/stable/0.9)
 #   - [R](https://www.r-project.org)
@@ -30,6 +30,86 @@ _check_python_requirements || die "[ERROR] Python is not properly configured!"
 Rscript --version > /dev/null 2>&1 || die "[ERROR] Could not find 'Rscript' to perform, e.g., statistical analysis. Please install 'Rscript' and re-run the script."
 
 # ------------------------------------------------------------------------- Main
+
+#
+# Get PyEnv
+#
+
+echo ""
+echo "Setting up pyenv..."
+
+PYENV_DIR="$SCRIPT_DIR/pyenv"
+
+if [ -d "$PYENV_DIR" ]; then
+  # pyenv requires some time to install and build, therefore do it if it is required
+
+  git clone https://github.com/pyenv/pyenv.git "$PYENV_DIR"
+  if [ "$?" -ne "0" ] || [ ! -d "$PYENV_DIR" ]; then
+    die "[ERROR] Clone of 'pyenv' failed!"
+  fi
+
+  export PYENV_ROOT="$PYENV_DIR"
+  export PATH="$PYENV_ROOT/bin:$PATH"
+  # export PATH="$PYENV_ROOT/bin:$PYENV_ROOT/shims:$PYENV_ROOT/plugins/pyenv-virtualenv/bin:$PYENV_ROOT/plugins/pyenv-virtualenv/shims:$PATH"
+
+  git clone https://github.com/pyenv/pyenv-virtualenv.git "$PYENV_ROOT/plugins/pyenv-virtualenv"
+  if [ "$?" -ne "0" ] || [ ! -d "$PYENV_ROOT/plugins/pyenv-virtualenv" ]; then
+    die "[ERROR] Clone of 'pyenv-virtualenv' failed!"
+  fi
+
+  # Check whether 'pyenv' is (now) available
+  pyenv --version > /dev/null 2>&1 || die "[ERROR] Could not find 'pyenv' to setup Python's virtual environment."
+
+  # Install Python v3.7.0
+  pyenv install -v 3.7.0
+
+  if [ "$?" -ne "0" ]; then
+    echo "[ERROR] Failed to install Python v3.7.0 with pyenv.  Most likely reason is due to OS depends not being installed/available." >&2
+
+    echo "" >&2
+    echo "On Ubuntu/Debian please install the following dependencies:" >&2
+    echo "sudo apt-get install -y make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev xz-utils tk-dev libffi-dev liblzma-dev python-openssl" >&2
+
+    echo "" >&2
+    echo "On Fedora/CentOS/RHEL please install the following dependencies:" >&2
+    echo "sudo yum install zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel xz xz-devel libffi-devel" >&2
+
+    echo "" >&2
+    echo "On openSUSE please install the following dependencies:" >&2
+    echo "zypper in zlib-devel bzip2 libbz2-devel libffi-devel libopenssl-devel readline-devel sqlite3 sqlite3-devel xz xz-devel" >&2
+
+    echo "" >&2
+    echo "On MacOS please install the following dependencies using the [homebrew package management system](https://brew.sh):" >&2
+    echo "brew install openssl readline sqlite3 xz zlib" >&2
+    echo "When running Mojave or higher (10.14+) you will also need to install the additional [SDK headers](https://developer.apple.com/documentation/xcode_release_notes/xcode_10_release_notes#3035624):"
+    echo "sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg -target /"
+
+    die
+  fi
+
+  # Switch to the version just installed
+  pyenv local 3.7.0 || die "[ERROR] The version just installed is not available to pyenv!"
+
+  python_version=$(python --version)
+  if [ "$python_version" != "Python 3.7.0" ]; then
+    die "[ERROR] System is still using '$python_version' install of v3.7.0!"
+  fi
+
+  # Check whether the version just installed is working properly
+  python -m test || die "[ERROR] The version just installed is not working properly!"
+
+  # Disable/Unload the version just installed
+  rm "$SCRIPT_DIR/.python-version" || die "[ERROR] Failed to remove '$SCRIPT_DIR/.python-version!'"
+
+  eval "$(pyenv init --path)"
+  eval "$(pyenv virtualenv-init -)"
+
+  # Create a virtual environment based on the version just installed
+  pyenv virtualenv 3.7.0 3.7.0-qmutpy-and-qiskit-aqua || die "[ERROR] Failed to create virtual environment based on the version just installed!"
+  # Check whether the virtual environment was correctly created it by loading it
+  pyenv activate 3.7.0-qmutpy-and-qiskit-aqua || die "[ERROR] Failed to activate the just created virtual environment!"
+  pyenv deactivate || die "[ERROR] Failed to deactivate the just created virtual environment!"
+fi
 
 #
 # Get QMutPy
