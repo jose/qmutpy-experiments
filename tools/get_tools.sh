@@ -5,7 +5,7 @@
 #   - [Simple Python Version Management: pyenv](https://github.com/pyenv/pyenv)
 #     and [pyenv-virtualenv](https://github.com/pyenv/pyenv-virtualenv)
 #   - [QMutPy](https://github.com/danielfobooss/mutpy/tree/all_gates)
-#   - [Qiskit Aqua](https://github.com/Qiskit/qiskit-aqua/tree/stable/0.9)
+#   - [Qiskit Aqua](https://github.com/Qiskit/qiskit-aqua/tree/stable/0.8)
 #   - [R](https://www.r-project.org)
 #
 # Usage:
@@ -199,8 +199,8 @@ fi
 
 pushd . > /dev/null 2>&1
 cd "$QISKIT_AQUA_DIR"
-  # Switch to 'stable/0.9' branch
-  git checkout stable/0.9 || die "[ERROR] Branch 'stable/0.9' not found!"
+  # Switch to 'stable/0.8' branch
+  git checkout stable/0.8 || die "[ERROR] Branch 'stable/0.8' not found!"
   # Switch to lastest commit
   git checkout 49dab4892691d207aacc3d27ce33c11e9ac08777 || die "[ERROR] Commit '49dab4892691d207aacc3d27ce33c11e9ac08777' not found!"
   # Load Python virtual environment
@@ -209,7 +209,7 @@ cd "$QISKIT_AQUA_DIR"
   pip install pip --upgrade                || die "[ERROR] Failed to upgrade 'pip'!"
   pip install setuptools==40.1.0 --upgrade || die "[ERROR] Failed to upgrade 'setuptools' to v40.1.0!"
   pip install -r requirements-dev.txt      || die "[ERROR] Failed to install dev requirements!"
-  pip install pyscf                        || die "[ERROR] Failed to install 'pyscf' which is required by, e.g., https://github.com/Qiskit/qiskit-aqua/blob/stable/0.9/test/chemistry/test_bopes_sampler.py test suite!"
+  pip install pyscf                        || die "[ERROR] Failed to install 'pyscf' which is required by, e.g., https://github.com/Qiskit/qiskit-aqua/blob/stable/0.8/test/chemistry/test_bopes_sampler.py test suite!"
   # Unload Python virtual environment
   rm ".python-version" || die "[ERROR] Failed to unload virtual environment!"
 popd > /dev/null 2>&1
