@@ -91,7 +91,7 @@ if [ ! -d "$PYENV_DIR" ]; then
 
   python_version=$(python --version)
   if [ "$python_version" != "Python 3.7.0" ]; then
-    die "[ERROR] System is still using '$python_version' install of v3.7.0!"
+    die "[ERROR] System is still using '$python_version' instead of v3.7.0!"
   fi
 
   # Check whether the version just installed is working properly
