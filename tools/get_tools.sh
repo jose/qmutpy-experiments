@@ -210,7 +210,6 @@ cd "$QISKIT_AQUA_DIR"
   pip install setuptools==40.1.0 --upgrade || die "[ERROR] Failed to upgrade 'setuptools' to v40.1.0!"
   pip install -r requirements-dev.txt      || die "[ERROR] Failed to install dev requirements!"
   pip install pyscf                        || die "[ERROR] Failed to install 'pyscf' which is required by, e.g., https://github.com/Qiskit/qiskit-aqua/blob/stable/0.9/test/chemistry/test_bopes_sampler.py test suite!"
-  python setup.py install                  || die "[ERROR] Failed to run Qiskit Aqua's setup.py script!"
   # Unload Python virtual environment
   rm ".python-version" || die "[ERROR] Failed to unload virtual environment!"
 popd > /dev/null 2>&1
