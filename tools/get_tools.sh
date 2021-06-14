@@ -56,6 +56,9 @@ if [ ! -d "$PYENV_DIR" ]; then
   # Check whether 'pyenv' is (now) available
   pyenv --version > /dev/null 2>&1 || die "[ERROR] Could not find 'pyenv' to setup Python's virtual environment."
 
+  eval "$(pyenv init --path)" || die "[ERROR] Failed to init pyenv!"
+  eval "$(pyenv virtualenv-init -)" || die "[ERROR] Failed to init pyenv-virtualenv!"
+
   # Install Python v3.7.0
   pyenv install -v 3.7.0
 
@@ -96,9 +99,6 @@ if [ ! -d "$PYENV_DIR" ]; then
 
   # Disable/Unload the version just installed
   rm "$SCRIPT_DIR/.python-version" || die "[ERROR] Failed to remove '$SCRIPT_DIR/.python-version!'"
-
-  eval "$(pyenv init --path)" || die "[ERROR] Failed to init pyenv!"
-  eval "$(pyenv virtualenv-init -)" || die "[ERROR] Failed to init pyenv-virtualenv!"
 
   # Create a virtual environment based on the version just installed
   pyenv virtualenv 3.7.0 3.7.0-qmutpy-and-qiskit-aqua || die "[ERROR] Failed to create virtual environment based on the version just installed!"
