@@ -202,7 +202,7 @@ cd "$QISKIT_AQUA_DIR"
   # Switch to 'stable/0.8' branch
   git checkout stable/0.8 || die "[ERROR] Branch 'stable/0.8' not found!"
   # Switch to lastest commit
-  git checkout 49dab4892691d207aacc3d27ce33c11e9ac08777 || die "[ERROR] Commit '49dab4892691d207aacc3d27ce33c11e9ac08777' not found!"
+  git checkout c17a2e4319571790d3087b70201eaf888eabfc35 || die "[ERROR] Commit 'c17a2e4319571790d3087b70201eaf888eabfc35' not found!"
   # Load Python virtual environment
   pyenv local "3.7.0-qmutpy-and-qiskit-aqua" || die "[ERROR] Failed to load 3.7.0-qmutpy-and-qiskit-aqua virtual environment!"
   # Install Qiskit Aqua
