@@ -77,8 +77,8 @@ if [ ! -d "$PYENV_DIR" ]; then
     echo "" >&2
     echo "On MacOS please install the following dependencies using the [homebrew package management system](https://brew.sh):" >&2
     echo "brew install openssl readline sqlite3 xz zlib" >&2
-    echo "When running Mojave or higher (10.14+) you will also need to install the additional [SDK headers](https://developer.apple.com/documentation/xcode_release_notes/xcode_10_release_notes#3035624):"
-    echo "sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg -target /"
+    echo "When running Mojave or higher (10.14+) you will also need to install the additional [SDK headers](https://developer.apple.com/documentation/xcode_release_notes/xcode_10_release_notes#3035624):" >&2
+    echo "sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg -target /" >&2
 
     die
   fi
