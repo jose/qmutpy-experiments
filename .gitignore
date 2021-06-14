@@ -292,5 +292,6 @@ cython_debug/
 # Ignore everything under 'tools/', except the 'get_tools.sh' script, and
 README.md file
 tools/*
-!tools/get_tools.sh
 !tools/README.md
+!tools/get_tools.sh
+!tools/get_libraries.R

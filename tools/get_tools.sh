@@ -214,6 +214,15 @@ cd "$QISKIT_AQUA_DIR"
   rm ".python-version" || die "[ERROR] Failed to unload virtual environment!"
 popd > /dev/null 2>&1
 
+#
+# R packages
+#
+
+echo ""
+echo "Setting up R..."
+
+Rscript "$SCRIPT_DIR/get_libraries.R" || die "[ERROR] Failed to install/load all required R packages!"
+
 echo ""
 echo "DONE! All tools have been successfully prepared."
 
