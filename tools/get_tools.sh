@@ -37,7 +37,7 @@ echo "Setting up pyenv..."
 
 PYENV_DIR="$SCRIPT_DIR/pyenv"
 
-if [ -d "$PYENV_DIR" ]; then
+if [ ! -d "$PYENV_DIR" ]; then
   # pyenv requires some time to install and build, therefore do it if it is required
 
   git clone https://github.com/pyenv/pyenv.git "$PYENV_DIR"
