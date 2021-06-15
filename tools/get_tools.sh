@@ -3,7 +3,7 @@
 # ------------------------------------------------------------------------------
 # This script downloads and sets up the following tools:
 #   - [Simple Python Version Management: pyenv](https://github.com/pyenv/pyenv)
-#     and [pyenv-virtualenv](https://github.com/pyenv/pyenv-virtualenv)
+#     and [Virtualenv](https://virtualenv.pypa.io)
 #   - [QMutPy](https://github.com/danielfobooss/mutpy/tree/all_gates)
 #   - [Qiskit Aqua](https://github.com/Qiskit/qiskit-aqua/tree/stable/0.8)
 #   - [R](https://www.r-project.org)
@@ -73,6 +73,9 @@ _install_python_version_x() {
     die "[ERROR] System is still using '$python_version' instead of $major.$minor.$micro!"
   fi
 
+  # Ensure pip, setuptools, and wheel are up to date
+  python -m pip install --upgrade pip setuptools wheel || die "[ERROR] Failed to upgrade 'pip', 'setuptools', and 'wheel'!"
+
   # Check whether the version just installed is working properly
   python -m test || die "[ERROR] Python $major.$minor.$micro is not working properly!"
 
@@ -80,26 +83,6 @@ _install_python_version_x() {
   rm ".python-version" || die "[ERROR] Failed to remove '.python-version!'"
 
   return 0
-}
-
-_create_python_virtual_environment() {
-  local USAGE="Usage: ${FUNCNAME[0]} <major> <minor> <micro> <env name>"
-  if [ "$#" != 4 ] ; then
-    echo "$USAGE" >&2
-    return 1
-  fi
-
-  local major="$1"
-  local minor="$2"
-  local micro="$3"
-  local env_name="$4"
-
-  # Create a virtual environment
-  pyenv virtualenv "$major.$minor.$micro" "$env_name" || die "[ERROR] Failed to create a virtual environment named $env_name for $major.$minor.$micro version!"
-  # Check whether the virtual environment was correctly created it by loading it and then disabling it
-  pyenv local "$env_name" || die "[ERROR] Failed to activate virtual environment $env_name!"
-  # Disable/Unload the virtual environment
-  rm ".python-version" || die "[ERROR] Failed to unload virtual environment $env_name!"
 }
 
 # ------------------------------------------------------------------------- Main
@@ -125,37 +108,36 @@ fi
 export PYENV_ROOT="$PYENV_DIR"
 export PATH="$PYENV_ROOT/bin:$PATH"
 
-git clone https://github.com/pyenv/pyenv-virtualenv.git "$PYENV_ROOT/plugins/pyenv-virtualenv"
-if [ "$?" -ne "0" ] || [ ! -d "$PYENV_ROOT/plugins/pyenv-virtualenv" ]; then
-  die "[ERROR] Clone of 'pyenv-virtualenv' failed!"
-fi
-
 # Check whether 'pyenv' is (now) available
 pyenv --version > /dev/null 2>&1 || die "[ERROR] Could not find 'pyenv' to setup Python's virtual environment!"
-
 # Init it
 eval "$(pyenv init --path)" || die "[ERROR] Failed to init pyenv!"
-eval "$(pyenv virtualenv-init -)" || die "[ERROR] Failed to init pyenv-virtualenv!"
 
 #
 # Install required Python version
 #
 
 echo ""
-echo "Install required Python versions..."
+echo "Installing required Python versions..."
 
 # Install v3.7.0
 _install_python_version_x "3" "7" "0" || die
 
 #
-# Create a Python virtual environment per Quantum framework and install QMutPy
-# and the Quantum framework
+# Get Virtualenv
+# https://virtualenv.pypa.io
 #
 
-# Create a Python virtual environment for v3.7.0
-_create_python_virtual_environment "3" "7" "0" "3.7.0-qmutpy-and-qiskit-aqua" || die
+echo ""
+echo "Installing up virtualenv..."
 
-# Get qiskit-aqua
+pyenv local "3.7.0"              || die "[ERROR] Failed to load Python v3.7.0!"
+python -m pip install virtualenv || die "[ERROR] Failed to install 'virtualenv'!"
+rm ".python-version"             || die
+
+#
+# Get QMutPy
+#
 echo ""
 echo "Setting up QMutPy..."
 
@@ -174,16 +156,20 @@ cd "$QMUTPY_DIR"
   # Switch to 'all_gates' branch
   git checkout all_gates || die "[ERROR] Branch 'all_gates' not found!"
   # Switch to lastest commit
-  git checkout 660764a116447130d966cdeffb0b2febae970903 || die "[ERROR] Commit '660764a116447130d966cdeffb0b2febae970903' not found!"
+  git checkout 13ab3845b26a18510bf3e0bddd529187f0b86b71 || die "[ERROR] Commit '13ab3845b26a18510bf3e0bddd529187f0b86b71' not found!"
   # Load Python virtual environment
-  pyenv local "3.7.0-qmutpy-and-qiskit-aqua" || die "[ERROR] Failed to load 3.7.0-qmutpy-and-qiskit-aqua virtual environment!"
+  pyenv local "3.7.0" || die "[ERROR] Failed to load 3.7.0 virtual environment!"
   # Install QMutPy
   python setup.py install || die "[ERROR] Failed to install QMutPy!"
   # Unload Python virtual environment
   rm ".python-version" || die "[ERROR] Failed to unload virtual environment!"
 popd > /dev/null 2>&1
 
-# Get qiskit-aqua
+#
+# Create a Python virtual environment per Quantum framework and install QMutPy
+# and the Quantum framework
+#
+
 echo ""
 echo "Setting up Qiskit Aqua..."
 
@@ -199,19 +185,25 @@ fi
 
 pushd . > /dev/null 2>&1
 cd "$QISKIT_AQUA_DIR"
-  # Switch to 'stable/0.8' branch
-  git checkout stable/0.8 || die "[ERROR] Branch 'stable/0.8' not found!"
+  # Switch to 'stable/0.9' branch
+  git checkout stable/0.9 || die "[ERROR] Branch 'stable/0.9' not found!"
   # Switch to lastest commit
-  git checkout c17a2e4319571790d3087b70201eaf888eabfc35 || die "[ERROR] Commit 'c17a2e4319571790d3087b70201eaf888eabfc35' not found!"
-  # Load Python virtual environment
-  pyenv local "3.7.0-qmutpy-and-qiskit-aqua" || die "[ERROR] Failed to load 3.7.0-qmutpy-and-qiskit-aqua virtual environment!"
+  git checkout 59d2fa05983e4279ff0ce9e344e9a071e661c7e6 || die "[ERROR] Commit '59d2fa05983e4279ff0ce9e344e9a071e661c7e6' not found!"
+  # Switch to installed version
+  pyenv local "3.7.0"                 || die "[ERROR] Failed to load Python v3.7.0!"
+  # Create virtual environment
+  virtualenv -p $(which python) env   || die "[ERROR] Failed to create virtual environment!"
+  # Activate virtual environment
+  source env/bin/activate             || die "[ERROR] Failed to activate virtual environment!"
+  # Install Qiskit Aqua's dependencies
+  pip install -r requirements-dev.txt || die "[ERROR] Failed to install dev requirements!"
+  pip install pyscf                   || die "[ERROR] Failed to install 'pyscf' which is required by, e.g., https://github.com/Qiskit/qiskit-aqua/blob/stable/0.8/test/chemistry/test_bopes_sampler.py test suite!"
   # Install Qiskit Aqua
-  pip install pip --upgrade                || die "[ERROR] Failed to upgrade 'pip'!"
-  pip install setuptools==40.1.0 --upgrade || die "[ERROR] Failed to upgrade 'setuptools' to v40.1.0!"
-  pip install -r requirements-dev.txt      || die "[ERROR] Failed to install dev requirements!"
-  pip install pyscf                        || die "[ERROR] Failed to install 'pyscf' which is required by, e.g., https://github.com/Qiskit/qiskit-aqua/blob/stable/0.8/test/chemistry/test_bopes_sampler.py test suite!"
-  # Unload Python virtual environment
-  rm ".python-version" || die "[ERROR] Failed to unload virtual environment!"
+  python setup.py install             || die "[ERROR] Failed to install Qiskit Aqua!"
+  # Freeze requirements/dependencies
+  pip freeze > qiskit-aqua-0.9-requirements.txt
+  # Deactivate virtual environment
+  rm ".python-version"                || die
 popd > /dev/null 2>&1
 
 #
