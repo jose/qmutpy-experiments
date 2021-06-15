@@ -131,9 +131,10 @@ _install_python_version_x "3" "7" "0" || die
 echo ""
 echo "Installing up virtualenv..."
 
-pyenv local "3.7.0"              || die "[ERROR] Failed to load Python v3.7.0!"
-python -m pip install virtualenv || die "[ERROR] Failed to install 'virtualenv'!"
-rm ".python-version"             || die
+pyenv local "3.7.0"                   || die "[ERROR] Failed to load Python v3.7.0!"
+python -m pip install virtualenv      || die "[ERROR] Failed to install 'virtualenv'!"
+virtualenv --version > /dev/null 2>&1 || die "[ERROR] Could not find 'virtualenv'!"
+rm ".python-version"                  || die
 
 #
 # Get QMutPy
