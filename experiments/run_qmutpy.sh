@@ -90,10 +90,6 @@ done
 
 # Check whether QUANTUM_FRAMEWORK_ROOT_PATH exits
 [ -d "$QUANTUM_FRAMEWORK_ROOT_PATH" ] || die "[ERROR] $QUANTUM_FRAMEWORK_ROOT_PATH does not exist!"
-# Check whether ALGORITHM_PATH exits
-[ -s "$QUANTUM_FRAMEWORK_ROOT_PATH/$ALGORITHM_PATH" ] || die "[ERROR] $QUANTUM_FRAMEWORK_ROOT_PATH/$ALGORITHM_PATH does not exist or it is empty!"
-# Check whether ALGORITHM_TEST_SUITE_FILE_PATH exits
-[ -s "$QUANTUM_FRAMEWORK_ROOT_PATH/$ALGORITHM_TEST_SUITE_FILE_PATH" ] || die "[ERROR] $QUANTUM_FRAMEWORK_ROOT_PATH/$ALGORITHM_TEST_SUITE_FILE_PATH does not exist or it is empty!"
 
 # ------------------------------------------------------------------------- Main
 
