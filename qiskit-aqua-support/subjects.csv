@@ -1,4 +1,4 @@
-algorithm_name,algorithm_path,test_suite_path
+algorithm_name,algorithm_full_name,test_suite_full_name
 bernstein_vazirani,qiskit.aqua.algorithms.education.bernstein_vazirani,test.aqua.test_bernstein_vazirani
 deutsch_jozsa,qiskit.aqua.algorithms.education.deutsch_jozsa,test.aqua.test_deutsch_jozsa
 grover,qiskit.aqua.algorithms.amplitude_amplifiers.grover,test.aqua.test_grover
