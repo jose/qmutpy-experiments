@@ -203,6 +203,8 @@ cd "$QISKIT_AQUA_DIR"
   # Freeze requirements/dependencies
   pip freeze > qiskit-aqua-0.9-requirements.txt
   # Deactivate virtual environment
+  deactivate                          || die "[ERROR] Failed to deactivate virtual environment!"
+  # Revert to system Python version
   rm ".python-version"                || die
 popd > /dev/null 2>&1
 
