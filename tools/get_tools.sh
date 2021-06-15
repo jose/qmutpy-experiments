@@ -5,7 +5,7 @@
 #   - [Simple Python Version Management: pyenv](https://github.com/pyenv/pyenv)
 #     and [Virtualenv](https://virtualenv.pypa.io)
 #   - [QMutPy](https://github.com/danielfobooss/mutpy/tree/all_gates)
-#   - [Qiskit Aqua](https://github.com/Qiskit/qiskit-aqua/tree/stable/0.8)
+#   - [Qiskit Aqua](https://github.com/Qiskit/qiskit-aqua/tree/stable/0.9)
 #   - [R](https://www.r-project.org)
 #
 # Usage:
@@ -197,7 +197,7 @@ cd "$QISKIT_AQUA_DIR"
   source env/bin/activate             || die "[ERROR] Failed to activate virtual environment!"
   # Install Qiskit Aqua's dependencies
   pip install -r requirements-dev.txt || die "[ERROR] Failed to install dev requirements!"
-  pip install pyscf                   || die "[ERROR] Failed to install 'pyscf' which is required by, e.g., https://github.com/Qiskit/qiskit-aqua/blob/stable/0.8/test/chemistry/test_bopes_sampler.py test suite!"
+  pip install pyscf                   || die "[ERROR] Failed to install 'pyscf' which is required by, e.g., https://github.com/Qiskit/qiskit-aqua/blob/stable/0.9/test/chemistry/test_bopes_sampler.py test suite!"
   # Install Qiskit Aqua
   python setup.py install             || die "[ERROR] Failed to install Qiskit Aqua!"
   # Freeze requirements/dependencies
