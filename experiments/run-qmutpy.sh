@@ -16,7 +16,7 @@
 #   [help]
 #
 # Requirements:
-#   Execution of tools/get_tools.sh script.
+#   Execution of tools/get-tools.sh script.
 # ------------------------------------------------------------------------------
 
 SCRIPT_DIR=$(cd `dirname $0` && pwd)
