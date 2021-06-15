@@ -33,18 +33,15 @@ _init_pyenv() {
 }
 
 #
-# Load a specific Python version and activate a virtual environment.
+# Activate virtual environment.
 #
-_load_pyenv() {
-  local USAGE="Usage: ${FUNCNAME[0]} <env name>"
-  if [ "$#" != 1 ] ; then
+_activate_virtual_environment() {
+  local USAGE="Usage: ${FUNCNAME[0]}"
+  if [ "$#" != 0 ] ; then
     echo "$USAGE" >&2
     return 1
   fi
 
-  local env_name="$1"
-
-  pyenv local "$env_name" || die "[ERROR] Failed to load the Python virtual environment '$env_name'!"
   source env/bin/activate || die "[ERROR] Failed to activate virtual environment!"
   python --version >&2
 
@@ -52,17 +49,16 @@ _load_pyenv() {
 }
 
 #
-# Unload the loaded Python version and deactivate a virtual environment.
+# Deactivate virtual environment.
 #
-_unload_pyenv() {
+_deactivate_virtual_environment() {
   local USAGE="Usage: ${FUNCNAME[0]}"
   if [ "$#" != 0 ] ; then
     echo "$USAGE" >&2
     return 1
   fi
 
-  deactivate           || die "[ERROR] Failed to deactivate virtual environment!"
-  rm ".python-version" || die "[ERROR] Failed to unload the loaded Python virtual environment!"
+  deactivate || die "[ERROR] Failed to deactivate virtual environment!"
 
   return 0
 }
