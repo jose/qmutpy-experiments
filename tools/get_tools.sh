@@ -208,7 +208,7 @@ cd "$QISKIT_AQUA_DIR"
   # Install Qiskit Aqua
   python setup.py install             || die "[ERROR] Failed to install Qiskit Aqua!"
   # Freeze requirements/dependencies
-  pip freeze > qiskit-aqua-0.9-requirements.txt
+  pip freeze > qiskit-aqua-0.9-requirements.txt || die "[ERROR] Failed to freeze Qiskit Aqua's requirements!"
   # Deactivate virtual environment
   deactivate                          || die "[ERROR] Failed to deactivate virtual environment!"
   # Revert to system Python version
