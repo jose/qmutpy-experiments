@@ -11,8 +11,8 @@
 # create-qmutpy-jobs.sh
 #   --quantum_framework_name <name, e.g., qiskit-aqua>
 #   --quantum_framework_root_path <path, e.g., $(pwd)/../tools/qiskit-aqua/>
-#   --quantum_subjects_file_path <name, e.g., $(pwd)/../qiskit-aqua-support/subjects.csv/>
-#   --quantum_mutation_operators_file_path <name, e.g., $(pwd)/../qmutpy-support/mutation-operators.csv/>
+#   --quantum_subjects_file_path <name, e.g., $(pwd)/../qiskit-aqua-support/subjects.csv>
+#   --quantum_mutation_operators_file_path <name, e.g., $(pwd)/../qmutpy-support/mutation-operators.csv>
 #   --report_output_dir <path, e.g., qiskit-aqua/>
 #   --jobs_file_path <path, e.g., qiskit-aqua-jobs.txt>
 #   [help]
@@ -26,7 +26,7 @@ source "$SCRIPT_DIR/utils.sh" || exit 1
 
 # ------------------------------------------------------------------------- Args
 
-USAGE="Usage: ${BASH_SOURCE[0]} --quantum_framework_name <name, e.g., qiskit-aqua> --quantum_framework_root_path <path, e.g., $(pwd)/../tools/qiskit-aqua/> --quantum_subjects_file_path <name, e.g., $(pwd)/../qiskit-aqua-support/subjects.csv/> --quantum_mutation_operators_file_path <name, e.g., $(pwd)/../qmutpy-support/mutation-operators.csv/> --report_output_dir <path, e.g., qiskit-aqua/> --jobs_file_path <path, e.g., qiskit-aqua-jobs.txt> [help]"
+USAGE="Usage: ${BASH_SOURCE[0]} --quantum_framework_name <name, e.g., qiskit-aqua> --quantum_framework_root_path <path, e.g., \$(pwd)/../tools/qiskit-aqua/> --quantum_subjects_file_path <name, e.g., \$(pwd)/../qiskit-aqua-support/subjects.csv> --quantum_mutation_operators_file_path <name, e.g., \$(pwd)/../qmutpy-support/mutation-operators.csv> --report_output_dir <path, e.g., qiskit-aqua> --jobs_file_path <path, e.g., qiskit-aqua-jobs.txt> [help]"
 if [ "$#" -ne "12" ]; then
   die "$USAGE"
 fi
