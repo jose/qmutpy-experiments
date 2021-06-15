@@ -16,8 +16,7 @@ die() {
 }
 
 #
-# Init [Simple Python Version Management: pyenv](https://github.com/pyenv/pyenv)
-# and [pyenv-virtualenv](https://github.com/pyenv/pyenv-virtualenv).
+# Init [Simple Python Version Management: pyenv](https://github.com/pyenv/pyenv).
 #
 _init_pyenv() {
   export PYENV_ROOT="$PWD/../tools/pyenv"
