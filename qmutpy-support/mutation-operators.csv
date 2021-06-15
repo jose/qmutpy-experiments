@@ -1,0 +1,6 @@
+mutation_operator_description,mutation_operator_id
+QuantumGateDeletion,QGD
+QuantumGateInsertion,QGI
+QuantumGateReplacement,QGR
+QuantumMeasurementDeletion,QMD
+QuantumMeasurementInsertion,QMI
