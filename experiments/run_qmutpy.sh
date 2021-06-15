@@ -7,7 +7,7 @@
 # run_qmutpy.sh
 #   --quantum_framework_name <name, e.g., qiskit-aqua>
 #   --quantum_framework_root_path <path, e.g., $(pwd)/../tools/qiskit-aqua/>
-#   --pyenv_name <name, e.g., 3.7.0-qmutpy-and-qiskit-aqua>
+#   --pyenv_name <name, e.g., 3.7.0>
 #   --algorithm_name <name, e.g., shor>
 #   --algorithm_file_path <path, e.g., qiskit/aqua/algorithms/factorizers/shor.py>
 #   --algorithm_test_suite_file_path <path, e.g., test/aqua/test_shor.py>
@@ -29,7 +29,7 @@ _init_pyenv || die
 
 # ------------------------------------------------------------------------- Args
 
-USAGE="Usage: ${BASH_SOURCE[0]} --quantum_framework_name <name, e.g., qiskit-aqua> --quantum_framework_root_path <path, e.g., \$(pwd)/../tools/qiskit-aqua/> --pyenv_name <name, e.g., 3.7.0-qmutpy-and-qiskit-aqua> --algorithm_name <name, e.g., shor> --algorithm_path <path, e.g., qiskit/aqua/algorithms/factorizers/shor.py> --algorithm_test_suite_file_path <path, e.g., test/aqua/test_shor.py> --mutation_operator <name, e.g., QGD> --report_output_file <path, e.g., qiskit-aqua-shor-QGD.yaml> [help]"
+USAGE="Usage: ${BASH_SOURCE[0]} --quantum_framework_name <name, e.g., qiskit-aqua> --quantum_framework_root_path <path, e.g., \$(pwd)/../tools/qiskit-aqua/> --pyenv_name <name, e.g., 3.7.0> --algorithm_name <name, e.g., shor> --algorithm_path <path, e.g., qiskit/aqua/algorithms/factorizers/shor.py> --algorithm_test_suite_file_path <path, e.g., test/aqua/test_shor.py> --mutation_operator <name, e.g., QGD> --report_output_file <path, e.g., qiskit-aqua-shor-QGD.yaml> [help]"
 if [ "$#" -ne "16" ]; then
   die "$USAGE"
 fi
