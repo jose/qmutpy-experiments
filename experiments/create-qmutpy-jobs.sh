@@ -5,6 +5,7 @@
 # algorithms x mutation operators to consider.  The jobs file can then be used
 # with [GNU-Parallel](https://www.gnu.org/software/parallel), e.g.,
 #   parallel --progress -j 8 -a qiskit-aqua-jobs.txt
+# to run all jobs in parallel.
 #
 # Usage:
 # create-qmutpy-jobs.sh
