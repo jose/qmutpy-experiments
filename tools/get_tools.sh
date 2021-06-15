@@ -164,12 +164,6 @@ cd "$QMUTPY_DIR"
   git checkout all_gates || die "[ERROR] Branch 'all_gates' not found!"
   # Switch to lastest commit
   git checkout 13ab3845b26a18510bf3e0bddd529187f0b86b71 || die "[ERROR] Commit '13ab3845b26a18510bf3e0bddd529187f0b86b71' not found!"
-  # Load Python virtual environment
-  pyenv local "3.7.0" || die "[ERROR] Failed to load 3.7.0 virtual environment!"
-  # Install QMutPy
-  python setup.py install || die "[ERROR] Failed to install QMutPy!"
-  # Unload Python virtual environment
-  rm ".python-version" || die "[ERROR] Failed to unload virtual environment!"
 popd > /dev/null 2>&1
 
 #
@@ -209,6 +203,17 @@ cd "$QISKIT_AQUA_DIR"
   python setup.py install             || die "[ERROR] Failed to install Qiskit Aqua!"
   # Freeze requirements/dependencies
   pip freeze > qiskit-aqua-0.9-requirements.txt || die "[ERROR] Failed to freeze Qiskit Aqua's requirements!"
+
+  # As, by default, virtualenv inherit packages from /usr/lib/python2.7/site-packages
+  # (or wherever your global site-packages directory is), in here QMutPy is installed
+  # in this virtual environment.  To force virtualenv to inherit packages from the
+  # global site-packages directory, use `virtualenv --system-site-packages ENV`.
+  pushd . > /dev/null 2>&1
+  cd "$QMUTPY_DIR"
+    # Install QMutPy
+    python setup.py install           || die "[ERROR] Failed to install QMutPy!"
+  popd > /dev/null 2>&1
+
   # Deactivate virtual environment
   deactivate                          || die "[ERROR] Failed to deactivate virtual environment!"
   # Revert to system Python version
