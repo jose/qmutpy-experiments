@@ -105,6 +105,12 @@ if [ "$?" -ne "0" ] || [ ! -d "$PYENV_DIR" ]; then
   die "[ERROR] Clone of 'pyenv' failed!"
 fi
 
+pushd . > /dev/null 2>&1
+cd "$PYENV_DIR"
+  # Switch to 'v2.0.1' branch/tag
+  git checkout v2.0.1 || die "[ERROR] Branch/Tag 'v2.0.1' not found!"
+popd > /dev/null 2>&1
+
 export PYENV_ROOT="$PYENV_DIR"
 export PATH="$PYENV_ROOT/bin:$PATH"
 
