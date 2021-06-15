@@ -4,7 +4,7 @@
 # This script runs QMutPy on a single quantum algorithm.
 #
 # Usage:
-# run_qmutpy.sh
+# run-qmutpy.sh
 #   --quantum_framework_name <name, e.g., qiskit-aqua>
 #   --quantum_framework_root_path <path, e.g., $(pwd)/../tools/qiskit-aqua/>
 #   --pyenv_name <name, e.g., 3.7.0>
