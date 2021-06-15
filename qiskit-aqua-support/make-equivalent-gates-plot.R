@@ -34,7 +34,7 @@ pdf(file=PDF_PATH, family="Helvetica", width=10, height=10)
 #
 
 plot_label("as heatmap")
-p <- ggplot(df, aes(x=mutant, y=equivalent)) + geom_tile(color="white", size=0.01)
+p <- ggplot(df, aes(x=gate, y=equivalent_gate)) + geom_tile(color="white", size=0.01)
 # Remove x-axis and y-axis label
 p <- p + theme(axis.title.x=element_blank(),
                axis.title.y=element_blank(),
