@@ -45,8 +45,8 @@ _load_pyenv() {
 
   local env_name="$1"
 
-  source env/bin/activate || die "[ERROR] Failed to activate virtual environment!"
   pyenv local "$env_name" || die "[ERROR] Failed to load the Python virtual environment '$env_name'!"
+  source env/bin/activate || die "[ERROR] Failed to activate virtual environment!"
   python --version >&2
 
   return 0
