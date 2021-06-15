@@ -293,5 +293,5 @@ cython_debug/
 README.md file
 tools/*
 !tools/README.md
-!tools/get_tools.sh
-!tools/get_libraries.R
+!tools/get-tools.sh
+!tools/get-libraries.R

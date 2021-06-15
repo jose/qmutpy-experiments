@@ -227,7 +227,7 @@ popd > /dev/null 2>&1
 echo ""
 echo "Setting up R..."
 
-Rscript "$SCRIPT_DIR/get_libraries.R" || die "[ERROR] Failed to install/load all required R packages!"
+Rscript "$SCRIPT_DIR/get-libraries.R" || die "[ERROR] Failed to install/load all required R packages!"
 
 echo ""
 echo "DONE! All tools have been successfully prepared."
