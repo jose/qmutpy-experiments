@@ -1,8 +1,8 @@
 algorithm_name,algorithm_path,test_suite_path
-bernstein_vazirani,qiskit/aqua/algorithms/education/bernstein_vazirani.py,test/aqua/test_bernstein_vazirani.py
-deutsch_jozsa,qiskit/aqua/algorithms/education/deutsch_jozsa.py,test/aqua/test_deutsch_jozsa.py
-grover,qiskit/aqua/algorithms/amplitude_amplifiers/grover.py,test/aqua/test_grover.py
-iqpe,qiskit/aqua/algorithms/minimum_eigen_solvers/iqpe.py,test/aqua/test_iqpe.py
-lookup_rotation,qiskit/aqua/components/reciprocals/lookup_rotation.py,test/aqua/test_lookup_rotation.py
-shor,qiskit/aqua/algorithms/factorizers/shor.py,test/aqua/test_shor.py
-simon,qiskit/aqua/algorithms/education/simon.py,test/aqua/test_simon.py
+bernstein_vazirani,qiskit.aqua.algorithms.education.bernstein_vazirani.py,test.aqua.test_bernstein_vazirani.py
+deutsch_jozsa,qiskit.aqua.algorithms.education.deutsch_jozsa.py,test.aqua.test_deutsch_jozsa.py
+grover,qiskit.aqua.algorithms.amplitude_amplifiers.grover.py,test.aqua.test_grover.py
+iqpe,qiskit.aqua.algorithms.minimum_eigen_solvers.iqpe.py,test.aqua.test_iqpe.py
+lookup_rotation,qiskit.aqua.components.reciprocals.lookup_rotation.py,test.aqua.test_lookup_rotation.py
+shor,qiskit.aqua.algorithms.factorizers.shor.py,test.aqua.test_shor.py
+simon,qiskit.aqua.algorithms.education.simon.py,test.aqua.test_simon.py
