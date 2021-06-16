@@ -24,7 +24,7 @@ source "$SCRIPT_DIR/utils.sh" || exit 1
 # ------------------------------------------------------------------------- Args
 
 USAGE="Usage: ${BASH_SOURCE[0]} --quantum_framework_name <name, e.g., qiskit-aqua> --quantum_framework_root_path <path, e.g., \$(pwd)/../tools/qiskit-aqua/> --algorithm_name <name, e.g., shor> --algorithm_full_name <path, e.g., qiskit.aqua.algorithms.factorizers.shor> --algorithm_test_suite_full_name <path, e.g., test.aqua.test_shor> --mutation_operator <name, e.g., QGD> --report_output_file <path, e.g., qiskit-aqua-shor-QGD.yaml> [help]"
-if [ "$#" -ne "14" ]; then
+if [ "$#" -ne "1" ] && [ "$#" -ne "14" ]; then
   die "$USAGE"
 fi
 
