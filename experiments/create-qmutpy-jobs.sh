@@ -109,7 +109,7 @@ while read -r mutation_operator_row; do
     echo "ALGORITHM_TEST_SUITE_FULL_NAME: $algorithm_test_suite_full_name" >> "$log_file"
     echo "MUTATION_OPERATOR_ID: $mutation_operator_id"                     >> "$log_file"
 
-    echo "bash \"$SCRIPT_DIR/run_qmutpy.sh\" \
+    echo "bash \"$SCRIPT_DIR/run-qmutpy.sh\" \
           --quantum_framework_name \"$QUANTUM_FRAMEWORK_NAME\" \
           --quantum_framework_root_path \"$QUANTUM_FRAMEWORK_ROOT_PATH\" \
           --algorithm_name \"$algorithm_name\" \
