@@ -204,6 +204,10 @@ cd "$QISKIT_AQUA_DIR"
   # Freeze requirements/dependencies
   pip freeze > qiskit-aqua-0.9-requirements.txt || die "[ERROR] Failed to freeze Qiskit Aqua's requirements!"
 
+  # Run project's test suite.  Note: no test case should fail, otherwise mutation
+  # scores collected in our experiments might be incorrect
+  python -m unittest discover -v test || die "[ERROR] Qiskit Aqua's test suite failed!"
+
   # As, by default, virtualenv inherit packages from /usr/lib/python2.7/site-packages
   # (or wherever your global site-packages directory is), in here QMutPy is installed
   # in this virtual environment.  To force virtualenv to inherit packages from the
