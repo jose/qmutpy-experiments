@@ -116,7 +116,7 @@ while read -r mutation_operator_row; do
           --algorithm_full_name \"$algorithm_full_name\" \
           --algorithm_test_suite_full_name \"$algorithm_test_suite_full_name\" \
           --mutation_operator \"$mutation_operator_id\" \
-          --report_output_file \"$report_file\" > \"$log_file\" 2>&1" >> "$JOBS_FILE_PATH"
+          --report_output_file \"$report_file\" >> \"$log_file\" 2>&1" >> "$JOBS_FILE_PATH"
 
   done < <(tail -n +2 "$QUANTUM_SUBJECTS_FILE_PATH")
 done < <(tail -n +2 "$QUANTUM_MUTATION_OPERATORS_FILE_PATH")
