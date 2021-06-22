@@ -91,7 +91,13 @@ with open(csv_file, 'w', newline='') as csv_file_output:
             'NA', 'NA', 'NA', 'NA', 'NA', 'NA', 'NA', 'NA')
         else:
             time_create_mutant_module  = data['time_stats']['create_mutant_module']
-            time_run_tests_with_mutant = data['time_stats']['run_tests_with_mutant']
+            if 'run_tests_with_mutant' in data['time_stats']:
+                time_run_tests_with_mutant = data['time_stats']['run_tests_with_mutant']
+            else:
+                # Incompetent mutants do not have a 'run_tests_with_mutant' field
+                # as the mutated code is invalid and therefore not test could ever
+                # be executed
+                time_run_tests_with_mutant = 'NA'
 
             # Mutation data
             for mutation in data['mutations']:
