@@ -46,6 +46,21 @@ fieldnames = [
 # Attempt to correct the YAML file so that PyYAML can parse it
 subprocess.check_output('sed -i "s|\!\!python/module|python/module|g" ' + yaml_file, shell=True)
 
+def write_row_to_csv(output, target, test, number_of_tests, mutation_score,
+    total_time, time_create_mutant_module, time_create_target_ast, time_mutate_module, time_run_tests_with_mutant,
+    mutation_id, lineno, operator, status, killer, exception_traceback, tests_run, time):
+
+    row = {
+        # Overall data
+        'target': target, 'test': test, 'number_of_tests': number_of_tests, 'mutation_score': mutation_score,
+        # Overall time
+        'total_time': total_time, 'time_create_mutant_module': time_create_mutant_module, 'time_create_target_ast': time_create_target_ast, 'time_mutate_module': time_mutate_module, 'time_run_tests_with_mutant': time_run_tests_with_mutant,
+        # Per mutation, if any
+        'mutation_id': mutation_id, 'lineno': lineno, 'operator': operator, 'status': status, 'killer': killer, 'exception_traceback': exception_traceback, 'tests_run': tests_run, 'time': time
+    }
+
+    output.writerow(row)
+
 with open(csv_file, 'w', newline='') as csv_file_output:
     csv_output = csv.DictWriter(csv_file_output, fieldnames=fieldnames)
     csv_output.writeheader()
@@ -63,32 +78,37 @@ with open(csv_file, 'w', newline='') as csv_file_output:
 
         # Overall time data
         total_time = data['total_time']
-        time_create_mutant_module  = data['time_stats']['create_mutant_module']
         time_create_target_ast     = data['time_stats']['create_target_ast']
         time_mutate_module         = data['time_stats']['mutate_module']
-        time_run_tests_with_mutant = data['time_stats']['run_tests_with_mutant']
 
-        # Mutation data
-        for mutation in data['mutations']:
-            mutation_id = mutation['number']
-            assert len(mutation['mutations']) == 1
-            lineno              = mutation['mutations'][0]['lineno']
-            operator            = mutation['mutations'][0]['operator']
-            status              = mutation['status']
-            killer              = mutation['killer']
-            exception_traceback = mutation['exception_traceback']
-            if exception_traceback != None:
-                # Escape \n
-                exception_traceback = exception_traceback.replace("\n", "\\n")
-            tests_run           = mutation['tests_run']
-            time                = mutation['time']
+        if len(data['mutations']) == 0: # No mutations
+            time_create_mutant_module  = 'NA'
+            time_run_tests_with_mutant = 'NA'
 
-            row = {
-                # Overall data
-                'target': target, 'test': test, 'number_of_tests': number_of_tests, 'mutation_score': mutation_score,
-                # Overall time
-                'total_time': total_time, 'time_create_mutant_module': time_create_mutant_module, 'time_create_target_ast': time_create_target_ast, 'time_mutate_module': time_mutate_module, 'time_run_tests_with_mutant': time_run_tests_with_mutant,
-                # Per mutation
-                'mutation_id': mutation_id, 'lineno': lineno, 'operator': operator, 'status': status, 'killer': killer, 'exception_traceback': exception_traceback, 'tests_run': tests_run, 'time': time
-            }
-            csv_output.writerow(row)
+            write_row_to_csv(csv_output,
+            target, test, number_of_tests, mutation_score,
+            total_time, time_create_mutant_module, time_create_target_ast, time_mutate_module, time_run_tests_with_mutant,
+            'NA', 'NA', 'NA', 'NA', 'NA', 'NA', 'NA', 'NA')
+        else:
+            time_create_mutant_module  = data['time_stats']['create_mutant_module']
+            time_run_tests_with_mutant = data['time_stats']['run_tests_with_mutant']
+
+            # Mutation data
+            for mutation in data['mutations']:
+                mutation_id = mutation['number']
+                assert len(mutation['mutations']) == 1
+                lineno              = mutation['mutations'][0]['lineno']
+                operator            = mutation['mutations'][0]['operator']
+                status              = mutation['status']
+                killer              = mutation['killer']
+                exception_traceback = mutation['exception_traceback']
+                if exception_traceback != None:
+                    # Escape \n
+                    exception_traceback = exception_traceback.replace("\n", "\\n")
+                tests_run           = mutation['tests_run']
+                time                = mutation['time']
+
+                write_row_to_csv(csv_output,
+                target, test, number_of_tests, mutation_score,
+                total_time, time_create_mutant_module, time_create_target_ast, time_mutate_module, time_run_tests_with_mutant,
+                mutation_id, lineno, operator, status, killer, exception_traceback, tests_run, time)
