@@ -8,7 +8,7 @@
 # yaml2csv.py <yaml file path> <csv file path>
 #
 # Requirements:
-#   - Python >= 3.6.12
+#   - Python >= 3.6.8
 #   - PyYAML >= 5.4.1
 # ------------------------------------------------------------------------------
 
@@ -18,8 +18,8 @@ import csv
 import yaml
 import subprocess
 
-if sys.version_info < (3, 6, 12):
-    print('The yaml2csv.py script requires Python >= 3.6.12!')
+if sys.version_info < (3, 6, 8):
+    print('The yaml2csv.py script requires Python >= 3.6.8!')
     exit(1)
 
 yaml.version = [int(x) for x in yaml.__version__.split('.')]
