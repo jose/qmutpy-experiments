@@ -85,10 +85,13 @@ with open(csv_file, 'w', newline='') as csv_file_output:
             time_create_mutant_module  = 'NA'
             time_run_tests_with_mutant = 'NA'
 
+            # Try to collect mutation operator name from file's path
+            operator = yaml_file.split('/')[-2]
+
             write_row_to_csv(csv_output,
             target, test, number_of_tests, mutation_score,
             total_time, time_create_mutant_module, time_create_target_ast, time_mutate_module, time_run_tests_with_mutant,
-            'NA', 'NA', 'NA', 'NA', 'NA', 'NA', 'NA', 'NA')
+            'NA', 'NA', operator, 'NA', 'NA', 'NA', 'NA', 'NA')
         else:
             time_create_mutant_module  = data['time_stats']['create_mutant_module']
             if 'run_tests_with_mutant' in data['time_stats']:
@@ -118,3 +121,5 @@ with open(csv_file, 'w', newline='') as csv_file_output:
                 target, test, number_of_tests, mutation_score,
                 total_time, time_create_mutant_module, time_create_target_ast, time_mutate_module, time_run_tests_with_mutant,
                 mutation_id, lineno, operator, status, killer, exception_traceback, tests_run, time)
+
+# EOF
