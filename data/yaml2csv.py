@@ -28,8 +28,8 @@ if yaml.version[0] < 5 and yaml.version[1] < 4 and yaml.version[2] < 1:
     exit(1)
 
 if len(sys.argv) != 3:
-  print("Usage:\nyaml2csv.py <yaml file path> <csv file path>")
-  exit(1)
+    print("Usage:\nyaml2csv.py <yaml file path> <csv file path>")
+    exit(1)
 
 yaml_file = os.path.abspath(sys.argv[1])
 csv_file  = os.path.abspath(sys.argv[2])
