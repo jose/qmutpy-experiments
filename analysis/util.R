@@ -90,6 +90,10 @@ load_exps_data <- function(data_file='../data/qiskit-aqua-all-mutation-operators
   # Set factors
   df$'status' <- factor(df$'status', levels=c('incompetent', 'killed', 'survived', 'timeout'))
 
+  # TODO load '../qiskit-aqua-support/tests-coverage.csv' and split 'survived'
+  # into 'survived-covered' and 'survived-not-covered' so that we could try to
+  # explain why there are so many mutants that survive
+
   # TODO Is mutation time per mutant
   #   time_create_mutant_module + time_create_target_ast + time_mutate_module + time_run_tests_with_mutant
   #   or just

@@ -22,6 +22,8 @@ df <- merge(exps_data, mutation_operators, by='operator')
 
 # ------------------------------------------------------ summarize targets' data
 
+# TODO split '# Survived' column into '# Survived (covered)' and '# Survived (not covered)'
+
 # at algorithm level
 
 write_table_content <- function(df, column) {
