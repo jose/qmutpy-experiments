@@ -7,14 +7,16 @@
 # Once all test suites have been analyzed, this scripts collects all data in a
 # single CSV file (tests-coverage.csv) which follows the following format:
 #
-#    algorithm_full_name,test_suite_full_name,file,line,covered,excluded
-#    qiskit.aqua.algorithms.amplitude_amplifiers.grover,test.aqua.test_grover,qiskit/aqua/algorithms/amplitude_amplifiers/grover.py,13,1,0
+#    algorithm_full_name,test_suite_full_name,number_of_tests,file,line,covered,excluded
+#    qiskit.aqua.algorithms.amplitude_amplifiers.grover,test.aqua.test_grover,qiskit/aqua/algorithms/amplitude_amplifiers/grover.py,5,13,1,0
 #
 # where:
 # - algorithm_full_name represents the algorithm's canonical name as, e.g.,
 #   qiskit.aqua.algorithms.amplitude_amplifiers.grover
 # - test_suite_full_name represents the algorithm's test suite canonical name as,
 #   e.g., test.aqua.test_grover
+# - number_of_tests represents the number of test cases executed during code
+#   coverage analysis
 # - file represents the file for which coverage was collected, e.g.,
 #   qiskit/aqua/algorithms/amplitude_amplifiers/grover.py
 # - line represented the line number of a statement
@@ -79,7 +81,16 @@ cd "$QUANTUM_FRAMEWORK_ROOT_PATH"
     [ -s ".coverage" ] || die "[ERROR] .coverage does not exist or it is empty!"
 
     # Print to stdout the coverage collected
-    coverage report -m "$(echo $algorithm_full_name | tr '.' '/').py" || die "[ERROR] Failed to print to stdout the coverage collected for $algorithm_full_name!"
+    tmp_report_file="$COVERAGE_DIR/.$algorithm_full_name.log"
+    coverage report -m "$(echo $algorithm_full_name | tr '.' '/').py" > "$tmp_report_file" 2>&1
+    if [ "$?" -ne "0" ]; then
+      cat "$tmp_report_file"
+      rm "$tmp_report_file"
+      die "[ERROR] Failed to print to stdout the coverage collected for $algorithm_full_name!"
+    fi
+    # Collect number of tests executed during code-coverage analysis
+    number_of_tests=$(grep -E "^Ran [0-9]+ test[s]? in " "$tmp_report_file" | cut -f2 -d' ')
+    rm "$tmp_report_file"
 
     # Print to a JSON file the coverage collected
     coverage json -o "$json_cov_file" --pretty-print --include="$(echo $algorithm_full_name | tr '.' '/').py" || die "[ERROR] Failed to print to JSON file the coverage collected for $algorithm_full_name!"
@@ -90,9 +101,9 @@ cd "$QUANTUM_FRAMEWORK_ROOT_PATH"
 
     # Collect data in a single CSV
     if [ ! -f "$TEST_COVERAGE_CSV" ]; then # header
-      head -n1 "$csv_cov_file" | sed 's|^|algorithm_full_name,test_suite_full_name,|g' > "$TEST_COVERAGE_CSV" || die "[ERROR] Failed to create $TEST_COVERAGE_CSV!"
+      head -n1 "$csv_cov_file" | sed 's|^|algorithm_full_name,test_suite_full_name,number_of_tests,|g' > "$TEST_COVERAGE_CSV" || die "[ERROR] Failed to create $TEST_COVERAGE_CSV!"
     fi
-    tail -n +2 "$csv_cov_file" | sed "s|^|$algorithm_full_name,$algorithm_test_suite_full_name,|g" >> "$TEST_COVERAGE_CSV" || die "[ERROR] Failed to populate $TEST_COVERAGE_CSV!"
+    tail -n +2 "$csv_cov_file" | sed "s|^|$algorithm_full_name,$algorithm_test_suite_full_name,$number_of_tests,|g" >> "$TEST_COVERAGE_CSV" || die "[ERROR] Failed to populate $TEST_COVERAGE_CSV!"
   done < <(tail -n +2 "$QUANTUM_SUBJECTS_FILE_PATH")
 
   _deactivate_virtual_environment || die
