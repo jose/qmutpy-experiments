@@ -52,8 +52,9 @@ plot_label <- function(text) {
 # Based on: https://stackoverflow.com/a/52422707/998816
 #
 set_relative_widths_to_all_facet_columns <- function(plot) {
-  library('ggpubr')
+  library('ggpubr') # install.packages('ggpubr')
 
+  # Convert ggplot object to grob object
   ggplot <- ggplotGrob(plot)
 
   # Get gtable columns corresponding to the facets
