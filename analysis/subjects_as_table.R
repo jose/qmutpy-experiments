@@ -31,6 +31,7 @@ for (algorithm in sort(unique(df$'algorithm'))) {
   test_suite <- replace_string(get_short_name(unique(df$'test_suite_full_name'[mask])), '_', '\\\\_')
   covered    <- sum(df$'covered'[mask])
   excluded   <- sum(df$'excluded'[mask])
+  stopifnot(excluded == 0)
   coverage   <- covered / loc * 100.0
   num_tests  <- unique(df$'number_of_tests'[mask])
 
