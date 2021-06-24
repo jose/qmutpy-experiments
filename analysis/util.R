@@ -87,6 +87,8 @@ load_exps_data <- function(data_file='../data/qiskit-aqua-all-mutation-operators
   df$'mutation_score'[is.na(df$'mutation_id')] <- NA
   # Short names to plot
   df$'short_target' <- sapply(df$'target', get_short_name)
+  # Sort short names
+  df$'short_target' <- factor(df$'short_target', levels=sort(unique(df$'short_target'), decreasing=TRUE))
   # Set factors
   df$'status' <- factor(df$'status', levels=c('incompetent', 'killed', 'survived', 'timeout'))
 
