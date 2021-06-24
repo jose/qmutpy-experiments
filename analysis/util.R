@@ -86,7 +86,7 @@ load_data <- function(data_file) {
   # Fix mutation-score of non-executions
   df$'mutation_score'[is.na(df$'mutation_id')] <- NA
   # Short names to plot
-  df$'short_target' <- sapply(df$'target', get_algorithm_name)
+  df$'short_target' <- sapply(df$'target', get_short_name)
   # Set factors
   df$'status' <- factor(df$'status', levels=c('incompetent', 'killed', 'survived', 'timeout'))
 
@@ -100,12 +100,12 @@ load_data <- function(data_file) {
 }
 
 #
-# Given a full/canonical name of an algorithm, it returns its name.  I.e., if a
-# algorithm is named 'qiskit.optimization.algorithms.grover_optimizer', it
-# returns 'grover_optimizer'.
+# Given a full/canonical name of an algorithm or a test suite, it returns its
+# name.  I.e., if a algorithm is named 'qiskit.optimization.algorithms.grover_optimizer',
+# it returns 'grover_optimizer'.
 #
-get_algorithm_name <- function(full_algorithm_name) {
-  l <- unlist(strsplit(full_algorithm_name, "\\."))
+get_short_name <- function(full_name) {
+  l <- unlist(strsplit(full_name, "\\."))
   return(l[[length(l)]])
 }
 
