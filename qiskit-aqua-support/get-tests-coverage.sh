@@ -88,6 +88,7 @@ cd "$QUANTUM_FRAMEWORK_ROOT_PATH"
       rm "$tmp_report_file"
       die "[ERROR] Failed to print to stdout the coverage collected for $algorithm_full_name!"
     fi
+    cat "$tmp_report_file"
     # Collect number of tests executed during code-coverage analysis
     number_of_tests=$(grep -E "^Ran [0-9]+ test[s]? in " "$tmp_report_file" | cut -f2 -d' ')
     rm "$tmp_report_file"
