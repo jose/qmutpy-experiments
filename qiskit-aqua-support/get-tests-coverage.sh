@@ -7,8 +7,9 @@
 # Once all test suites have been analyzed, this scripts collects all data in a
 # single CSV file (tests-coverage.csv) which follows the following format:
 #
-#    algorithm_full_name,test_suite_full_name,number_of_tests,file,line,covered,excluded
-#    qiskit.aqua.algorithms.amplitude_amplifiers.grover,test.aqua.test_grover,qiskit/aqua/algorithms/amplitude_amplifiers/grover.py,5,13,1,0
+#    algorithm_full_name,test_suite_full_name,number_of_tests,file,statement,line,covered,excluded
+#    qiskit.aqua.algorithms.amplitude_amplifiers.grover,test.aqua.test_grover,qiskit/aqua/algorithms/amplitude_amplifiers/grover.py,5,12,12,1,0
+#    qiskit.aqua.algorithms.amplitude_amplifiers.grover,test.aqua.test_grover,qiskit/aqua/algorithms/amplitude_amplifiers/grover.py,5,12,13,1,0
 #
 # where:
 # - algorithm_full_name represents the algorithm's canonical name as, e.g.,
@@ -19,7 +20,9 @@
 #   coverage analysis
 # - file represents the file for which coverage was collected, e.g.,
 #   qiskit/aqua/algorithms/amplitude_amplifiers/grover.py
-# - line represented the line number of a statement
+# - statement represent a statement code which might be include several lines of
+#   code
+# - line represented the line number of a line of code
 # - covered is either 1 if a line was exercised by the test suite, 0 otherwise
 # - excluded is either 1 if a line was excluded from coverage report, 0 otherwise
 #

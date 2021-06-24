@@ -9,12 +9,14 @@
 #
 # Requirements:
 #   - Python >= 3.6.8
+#   - [Coverage](https://coverage.readthedocs.io/en/coverage-5.5) >= 5.5
 # ------------------------------------------------------------------------------
 
 import os
 import sys
 import csv
 import json
+import coverage
 
 if sys.version_info < (3, 6, 8):
     print('The json2csv.py script requires Python >= 3.6.8!')
@@ -28,7 +30,7 @@ json_file = os.path.abspath(sys.argv[1])
 csv_file  = os.path.abspath(sys.argv[2])
 
 fieldnames = [
-    'file', 'line', 'covered', 'excluded'
+    'file', 'statement', 'line', 'covered', 'excluded'
 ]
 
 with open(csv_file, 'w', newline='') as csv_file_output:
@@ -41,19 +43,38 @@ with open(csv_file, 'w', newline='') as csv_file_output:
         files = data['files']
         assert len(files) > 0
         for file in files:
-            executed_lines = files[file]['executed_lines']
-            missing_lines  = files[file]['missing_lines']
-            excluded_lines = files[file]['excluded_lines']
-            assert len(executed_lines) + len(missing_lines) + len(excluded_lines) > 0
+            # The term used by [Coverage](https://coverage.readthedocs.io/en/coverage-5.5)
+            # is misleading.  It says it reports lines but in fact reports statements,
+            # which are different, i.e., a statement might be composed by several lines
+            # of code.
+            executed_statements = files[file]['executed_lines']
+            missing_statements  = files[file]['missing_lines']
+            excluded_statements = files[file]['excluded_lines']
+            assert len(executed_statements) + len(missing_statements) + len(excluded_statements) > 0
 
-            for line in executed_lines:
-                row = {'file': file, 'line': line, 'covered': 1, 'excluded': 0}
-                csv_output.writerow(row)
-            for line in missing_lines:
-                row = {'file': file, 'line': line, 'covered': 0, 'excluded': 0}
-                csv_output.writerow(row)
-            for line in excluded_lines:
-                row = {'file': file, 'line': line, 'covered': 0, 'excluded': 1}
-                csv_output.writerow(row)
+            # Parse .py file and build a dict of lines/statements, e.g.,
+            # { line: statement }
+            # {27: 27, 28: 27, 39: 39, 40: 39, 41: 39, 42: 39, 43: 39, 44: 44, ... }
+            #
+            # Construct object
+            pp = coverage.parser.PythonParser(filename=file)
+            # Parse source text to find executable lines, excluded lines, etc
+            pp.parse_source()
+            # Helper method to find all lines of code in a given statement
+            def find_lines_of_a_given_statement(multilines, statement_number):
+                return [k for k,v in multilines.items() if v == statement_number]
+
+            for statement in executed_statements:
+                for line in find_lines_of_a_given_statement(pp._multiline, statement):
+                    row = {'file': file, 'statement': statement, 'line': line, 'covered': 1, 'excluded': 0}
+                    csv_output.writerow(row)
+            for statement in missing_statements:
+                for line in find_lines_of_a_given_statement(pp._multiline, statement):
+                    row = {'file': file, 'statement': statement, 'line': line, 'covered': 0, 'excluded': 0}
+                    csv_output.writerow(row)
+            for statement in excluded_statements:
+                for line in find_lines_of_a_given_statement(pp._multiline, statement):
+                    row = {'file': file, 'statement': statement, 'line': line, 'covered': 0, 'excluded': 1}
+                    csv_output.writerow(row)
 
 # EOF
