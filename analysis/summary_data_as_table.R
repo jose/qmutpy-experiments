@@ -29,7 +29,7 @@ df <- merge(exps_data, mutation_operators, by='operator')
 write_table_content <- function(df, column) {
   for (column_value in sort(unique(df[[column]]))) {
     mask <- !is.na(df$'status') & df[[column]] == column_value
-    cat(replace_string(column_value, '_', '-'), sep='')
+    cat(replace_string(column_value, '_', '\\\\_'), sep='')
 
     num_mutants <- nrow(df[mask, ])
     cat(' & ', num_mutants, sep='')
