@@ -7,10 +7,16 @@
 # Once all test suites have been analyzed, this scripts collects all data in a
 # single CSV file (tests-coverage.csv) which follows the following format:
 #
-#    file,line,covered,excluded
-#    qiskit/aqua/algorithms/amplitude_amplifiers/grover.py,13,1,0
+#    algorithm_full_name,test_suite_full_name,file,line,covered,excluded
+#    qiskit.aqua.algorithms.amplitude_amplifiers.grover,test.aqua.test_grover,qiskit/aqua/algorithms/amplitude_amplifiers/grover.py,13,1,0
 #
-# - where file represents the file for which coverage was collected
+# where:
+# - algorithm_full_name represents the algorithm's canonical name as, e.g.,
+#   qiskit.aqua.algorithms.amplitude_amplifiers.grover
+# - test_suite_full_name represents the algorithm's test suite canonical name as,
+#   e.g., test.aqua.test_grover
+# - file represents the file for which coverage was collected, e.g.,
+#   qiskit/aqua/algorithms/amplitude_amplifiers/grover.py
 # - line represented the line number of a statement
 # - covered is either 1 if a line was exercised by the test suite, 0 otherwise
 # - excluded is either 1 if a line was excluded from coverage report, 0 otherwise
@@ -83,11 +89,10 @@ cd "$QUANTUM_FRAMEWORK_ROOT_PATH"
     python "$JSON_TO_CSV_SCRIPT" "$json_cov_file" "$csv_cov_file" || die "[ERROR] Failed to convert $json_cov_file into $csv_cov_file!"
 
     # Collect data in a single CSV
-    if [ ! -f "$TEST_COVERAGE_CSV" ]; then
-      cat "$csv_cov_file" > "$TEST_COVERAGE_CSV" || die "[ERROR] Failed to create and populate $TEST_COVERAGE_CSV!"
-    else
-      tail -n +2 "$csv_cov_file" >> "$TEST_COVERAGE_CSV" || die "[ERROR] Failed to populate $TEST_COVERAGE_CSV!"
+    if [ ! -f "$TEST_COVERAGE_CSV" ]; then # header
+      head -n1 "$csv_cov_file" | sed 's|^|algorithm_full_name,test_suite_full_name,|g' > "$TEST_COVERAGE_CSV" || die "[ERROR] Failed to create $TEST_COVERAGE_CSV!"
     fi
+    tail -n +2 "$csv_cov_file" | sed "s|^|$algorithm_full_name,$algorithm_test_suite_full_name,|g" >> "$TEST_COVERAGE_CSV" || die "[ERROR] Failed to populate $TEST_COVERAGE_CSV!"
   done < <(tail -n +2 "$QUANTUM_SUBJECTS_FILE_PATH")
 
   _deactivate_virtual_environment || die
