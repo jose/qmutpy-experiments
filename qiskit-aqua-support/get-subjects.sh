@@ -19,11 +19,11 @@
 # ------------------------------------------------------------------------------
 
 SCRIPT_DIR=$(cd `dirname $0` && pwd)
-source "$SCRIPT_DIR/utils.sh" || exit 1
+source "$SCRIPT_DIR/../experiments/utils.sh" || exit 1
 
 # ------------------------------------------------------------------------- Args
 
-QISKIT_AQUA_FRAMEWORK_DIR="$SCRIPT_DIR/../qiskit-aqua"
+QISKIT_AQUA_FRAMEWORK_DIR="$SCRIPT_DIR/../tools/qiskit-aqua"
 # Check whether QISKIT_AQUA_FRAMEWORK_DIR exits
 [ -d "$QISKIT_AQUA_FRAMEWORK_DIR" ] || die "[ERROR] $QISKIT_AQUA_FRAMEWORK_DIR does not exist!"
 
