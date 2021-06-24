@@ -71,7 +71,7 @@ set_relative_widths_to_all_facet_columns <- function(plot) {
 
 # ---------------------------------------------------------------- Study related
 
-load_data <- function(data_file) {
+load_exps_data <- function(data_file='../data/qiskit-aqua-all-mutation-operators.csv') {
   # Load data
   df <- load_CSV(data_file)
   # target,test,number_of_tests,mutation_score,

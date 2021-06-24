@@ -14,7 +14,7 @@ if (length(args) != 1) {
 OUTPUT_DIR_PATH <- args[1]
 
 # Load data
-exps_data          <- load_data('../data/qiskit-aqua-all-mutation-operators.csv')
+exps_data          <- load_exps_data()
 mutation_operators <- load_CSV('../qmutpy-support/mutation-operators.csv')
 names(mutation_operators)[names(mutation_operators) == 'mutation_operator_id'] <- 'operator'
 # Merge data

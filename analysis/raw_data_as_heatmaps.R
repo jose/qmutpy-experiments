@@ -14,7 +14,7 @@ if (length(args) != 1) {
 OUTPUT_FILE <- args[1]
 
 # Load data
-df <- load_data('../data/qiskit-aqua-all-mutation-operators.csv')
+df <- load_exps_data()
 
 # Annotate each mutant with a unique ID to ease plotting
 df$'status_operator'    <- paste(df$'status', df$'operator', sep='-')
