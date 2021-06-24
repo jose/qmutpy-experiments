@@ -77,21 +77,18 @@ cd "$QUANTUM_FRAMEWORK_ROOT_PATH"
     rm -f "$json_cov_file" "$csv_cov_file" ".coverage"
 
     # Run test suite and collect coverage
-    coverage run --source="$algorithm_full_name" -m unittest "$algorithm_test_suite_full_name" || die "[ERROR] Failed to collect $algorithm_full_name coverage!"
+    run_log_file="$COVERAGE_DIR/$algorithm_full_name-run.log"
+    coverage run --source="$algorithm_full_name" -m unittest "$algorithm_test_suite_full_name" > "$run_log_file" 2>&1; run_exit_code="$?"; cat "$run_log_file"
+    [ "$run_exit_code" -eq "0" ] || die "[ERROR] Failed to collect $algorithm_full_name coverage!"
     [ -s ".coverage" ] || die "[ERROR] .coverage does not exist or it is empty!"
 
-    # Print to stdout the coverage collected
-    tmp_report_file="$COVERAGE_DIR/.$algorithm_full_name.log"
-    coverage report -m "$(echo $algorithm_full_name | tr '.' '/').py" > "$tmp_report_file" 2>&1
-    if [ "$?" -ne "0" ]; then
-      cat "$tmp_report_file"
-      rm "$tmp_report_file"
-      die "[ERROR] Failed to print to stdout the coverage collected for $algorithm_full_name!"
-    fi
-    cat "$tmp_report_file"
     # Collect number of tests executed during code-coverage analysis
-    number_of_tests=$(grep -E "^Ran [0-9]+ test[s]? in " "$tmp_report_file" | cut -f2 -d' ')
-    rm "$tmp_report_file"
+    number_of_tests=$(grep -E "^Ran [0-9]+ test[s]? in " "$run_log_file" | cut -f2 -d' ')
+    [ "$?" -eq "0" ] || die "[ERROR] Failed to collect number of tests executed!"
+    [ "$number_of_tests" != "" ] || die "[ERROR] number of tests executed cannot be empty!"
+
+    # Print to stdout the coverage collected
+    coverage report -m "$(echo $algorithm_full_name | tr '.' '/').py" || die "[ERROR] Failed to run coverage report for $algorithm_full_name!"
 
     # Print to a JSON file the coverage collected
     coverage json -o "$json_cov_file" --pretty-print --include="$(echo $algorithm_full_name | tr '.' '/').py" || die "[ERROR] Failed to print to JSON file the coverage collected for $algorithm_full_name!"
