@@ -63,6 +63,7 @@ for (operators in operators_grid) {
            axis.title.y=element_blank(),
            legend.title=element_blank(),
            legend.position='top') +
+         guides(fill=guide_legend(nrow=1, byrow=TRUE)) +
          scale_fill_discrete(drop=FALSE) +
          scale_y_discrete(expand=c(0,0)) + scale_x_discrete(expand=c(0,0))
 
@@ -95,6 +96,7 @@ for (operators in operators_grid) {
            axis.title.y=element_blank(),
            legend.title=element_blank(),
            legend.position='top') +
+         guides(fill=guide_legend(nrow=1, byrow=TRUE)) +
          scale_fill_discrete(drop=FALSE) +
          scale_y_discrete(expand=c(0,0)) + scale_x_discrete(expand=c(0,0))
 
