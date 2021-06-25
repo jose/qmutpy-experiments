@@ -5,6 +5,7 @@
 #
 
 source('util.R')
+library('ggpubr') # install.packages('ggpubr')
 
 args = commandArgs(trailingOnly=TRUE)
 if (length(args) != 1) {
