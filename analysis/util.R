@@ -89,12 +89,29 @@ load_exps_data <- function(data_file='../data/qiskit-aqua-all-mutation-operators
   df$'short_target' <- sapply(df$'target', get_short_name)
   # Sort short names
   df$'short_target' <- factor(df$'short_target', levels=sort(unique(df$'short_target'), decreasing=TRUE))
-  # Set factors
-  df$'status' <- factor(df$'status', levels=c('incompetent', 'killed', 'survived', 'timeout'))
 
-  # TODO load '../qiskit-aqua-support/tests-coverage.csv' and split 'survived'
-  # into 'survived-covered' and 'survived-not-covered' so that we could try to
-  # explain why there are so many mutants that survive
+  ##
+  # Augment experiments' data with code coverage data
+  #
+  # algorithm_full_name,test_suite_full_name,number_of_tests,file,statement,line,covered,excluded
+  tests_coverage <- load_CSV('../qiskit-aqua-support/tests-coverage.csv')
+  # Rename some columns to ease merge
+  names(tests_coverage)[names(tests_coverage) == 'algorithm_full_name']  <- 'target'
+  names(tests_coverage)[names(tests_coverage) == 'test_suite_full_name'] <- 'test'
+  names(tests_coverage)[names(tests_coverage) == 'line']                 <- 'lineno'
+  # Drop some columns
+  tests_coverage <- subset(tests_coverage, select=-c(number_of_tests, file, statement))
+  # Merge data
+  df <- merge(df, tests_coverage, by=c('target', 'test', 'lineno'), all.x=TRUE)
+  # Runtime check, number of NaNs must be exactly the same
+  stopifnot(nrow(df[is.na(df$'lineno'), ]) == nrow(df[is.na(df$'covered'), ]))
+  # Create two new 'survived' status:
+  #  - survived-covered: mutants that survived and are covered/exercised by the test suite
+  #  - survived-not-covered: mutants that survived and are not covered/exercised by the test suite
+  df$'status'[!is.na(df$'status') & df$'status' == 'survived' & !is.na(df$'covered') & df$'covered' == 1] <- 'survived-covered'
+  df$'status'[!is.na(df$'status') & df$'status' == 'survived' & !is.na(df$'covered') & df$'covered' == 0] <- 'survived-not-covered'
+  # Set status' factors
+  df$'status' <- factor(df$'status', levels=c('incompetent', 'killed', 'survived-covered', 'survived-not-covered', 'timeout'))
 
   # TODO Is mutation time per mutant
   #   time_create_mutant_module + time_create_target_ast + time_mutate_module + time_run_tests_with_mutant

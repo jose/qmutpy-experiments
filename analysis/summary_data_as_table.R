@@ -46,8 +46,9 @@ write_table_content <- function(df, column) {
     num_mutants_killed <- nrow(df[mask & df$'status' == 'killed', ])
     cat(' & ', num_mutants_killed, sep='')
 
-    num_mutants_survived <- nrow(df[mask & df$'status' == 'survived', ])
-    cat(' & ', num_mutants_survived, sep='')
+    num_mutants_survived_covered     <- nrow(df[mask & df$'status' == 'survived-covered', ])
+    num_mutants_survived_not_covered <- nrow(df[mask & df$'status' == 'survived-not-covered', ])
+    cat(' & ', num_mutants_survived_covered, ' / ', num_mutants_survived_not_covered, sep='')
 
     num_mutants_incompetent <- nrow(df[mask & df$'status' == 'incompetent', ])
     cat(' & ', num_mutants_incompetent, sep='')
@@ -56,11 +57,12 @@ write_table_content <- function(df, column) {
     cat(' & ', num_mutants_timeout, sep='')
 
     if (column == 'short_target') {
-      mutation_score <- (num_mutants_killed / (num_mutants - num_mutants_incompetent)) * 100.0
-      if (is.nan(mutation_score)) {
+      mutation_score_a <- (num_mutants_killed / (num_mutants - num_mutants_incompetent)) * 100.0
+      mutation_score_b <- (num_mutants_killed / (num_mutants - num_mutants_incompetent - num_mutants_survived_not_covered)) * 100.0
+      if (is.nan(mutation_score_a)) {
         cat(' & ---', sep='')
       } else {
-        cat(' & ', sprintf("%.2f", round(mutation_score, 2)), sep='')
+        cat(' & ', sprintf("%.2f", round(mutation_score_a, 2)), ' / ', sprintf("%.2f", round(mutation_score_b, 2)), sep='')
       }
 
       time_in_seconds <- sum(df$'time'[mask])
