@@ -57,23 +57,33 @@ with open(csv_file, 'w', newline='') as csv_file_output:
             # {27: 27, 28: 27, 39: 39, 40: 39, 41: 39, 42: 39, 43: 39, 44: 44, ... }
             #
             # Construct object
-            pp = coverage.parser.PythonParser(filename=file)
+            python_parser_object = coverage.parser.PythonParser(filename=file)
             # Parse source text to find executable lines, excluded lines, etc
-            pp.parse_source()
+            python_parser_object.parse_source()
             # Helper method to find all lines of code in a given statement
-            def find_lines_of_a_given_statement(multilines, statement_number):
-                return [k for k,v in multilines.items() if v == statement_number]
+            def find_lines_of_a_given_statement(python_parser_object, statement_number):
+                lines = [k for k,v in python_parser_object._multiline.items() if v == statement_number]
+                if len(lines) == 0: # given statement is not multiline
+                    assert statement_number in python_parser_object.raw_statements
+                    lines = [statement_number]
+                return(lines)
 
             for statement in executed_statements:
-                for line in find_lines_of_a_given_statement(pp._multiline, statement):
+                executed_lines = find_lines_of_a_given_statement(python_parser_object, statement)
+                assert len(executed_lines) > 0
+                for line in executed_lines:
                     row = {'file': file, 'statement': statement, 'line': line, 'covered': 1, 'excluded': 0}
                     csv_output.writerow(row)
             for statement in missing_statements:
-                for line in find_lines_of_a_given_statement(pp._multiline, statement):
+                missing_lines = find_lines_of_a_given_statement(python_parser_object, statement)
+                assert len(missing_lines) > 0
+                for line in missing_lines:
                     row = {'file': file, 'statement': statement, 'line': line, 'covered': 0, 'excluded': 0}
                     csv_output.writerow(row)
             for statement in excluded_statements:
-                for line in find_lines_of_a_given_statement(pp._multiline, statement):
+                excluded_lines = find_lines_of_a_given_statement(python_parser_object, statement)
+                assert len(excluded_lines) > 0
+                for line in excluded_lines:
                     row = {'file': file, 'statement': statement, 'line': line, 'covered': 0, 'excluded': 1}
                     csv_output.writerow(row)
 
