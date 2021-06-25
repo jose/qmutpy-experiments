@@ -13,7 +13,7 @@ if (length(args) != 1) {
 
 OUTPUT_FILE_PATH <- args[1]
 
-# algorithm_full_name,test_suite_full_name,number_of_tests,file,line,covered,excluded
+# algorithm_full_name,test_suite_full_name,number_of_tests,file,statement,line,covered,excluded
 df <- load_CSV('../qiskit-aqua-support/tests-coverage.csv')
 df$'algorithm' <- sapply(df$'algorithm_full_name', get_short_name)
 
