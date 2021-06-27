@@ -91,8 +91,8 @@ def write_row_to_csv(output,
 
     output.writerow(row)
 
-with open(csv_file, 'w', newline='') as csv_file_output:
-    csv_output = csv.DictWriter(csv_file_output, fieldnames=fieldnames)
+with open(csv_file, 'w', encoding='utf-8') as csv_file_output:
+    csv_output = csv.DictWriter(csv_file_output, fieldnames=fieldnames, delimiter=',', lineterminator='\n')
     csv_output.writeheader()
 
     with open(yaml_file) as yaml_file_input:
