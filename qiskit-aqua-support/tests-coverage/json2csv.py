@@ -33,8 +33,8 @@ fieldnames = [
     'file', 'statement', 'line', 'covered', 'excluded'
 ]
 
-with open(csv_file, 'w', newline='') as csv_file_output:
-    csv_output = csv.DictWriter(csv_file_output, fieldnames=fieldnames)
+with open(csv_file, 'w', encoding='utf-8') as csv_file_output:
+    csv_output = csv.DictWriter(csv_file_output, fieldnames=fieldnames, delimiter=',', lineterminator='\n')
     csv_output.writeheader()
 
     with open(json_file) as json_file_input:
