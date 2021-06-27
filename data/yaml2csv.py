@@ -35,28 +35,58 @@ yaml_file = os.path.abspath(sys.argv[1])
 csv_file  = os.path.abspath(sys.argv[2])
 
 fieldnames = [
+    #
     # Overall data
-    'target', 'test', 'number_of_tests', 'mutation_score',
+    'target', 'test', 'number_of_tests',
+    #
     # Overall time
-    'total_time', 'time_create_mutant_module', 'time_create_target_ast', 'time_mutate_module', 'time_run_tests_with_mutant',
+    'time_to_run_tests_on_non_mutated_code', # 'time' under 'tests'
+    'time_to_create_targets_ast',            # 'create_target_ast'
+    'time_to_create_mutated_modules',        # 'create_mutant_module'
+    'time_to_run_tests_on_mutated_modules',  # 'run_tests_with_mutant'
+    'time_to_generate_mutated_asts',         # 'mutate_module' - time_to_run_tests_on_mutated_modules - time_to_create_targets_ast - time_to_create_mutated_modules
+    'time_to_mutate_module',                 # 'mutate_module' = time_to_create_targets_ast + time_to_generate_mutated_asts + time_to_create_mutated_modules + time_to_run_tests_on_mutated_modules
+    'total_time',                            # 'total_time'
+    #
     # Per mutation
-    'mutation_id', 'lineno', 'operator', 'status', 'killer', 'exception_traceback', 'tests_run', 'time'
+    'mutation_id',
+    'line_number',                           # 'lineno'
+    'operator', 'status', 'killer', 'exception_traceback',
+    'number_of_tests_executed',              # 'tests_run'
+    'time_to_run_tests_on_mutated_module'    # 'time'
 ]
 
 # Attempt to correct the YAML file so that PyYAML can parse it
 subprocess.check_output('sed -i "s|\!\!python/module|python/module|g" ' + yaml_file, shell=True)
 
-def write_row_to_csv(output, target, test, number_of_tests, mutation_score,
-    total_time, time_create_mutant_module, time_create_target_ast, time_mutate_module, time_run_tests_with_mutant,
-    mutation_id, lineno, operator, status, killer, exception_traceback, tests_run, time):
+def write_row_to_csv(output,
+    # Overall data
+    target, test, number_of_tests,
+    # Overall time
+    time_to_run_tests_on_non_mutated_code, time_to_create_targets_ast, time_to_create_mutated_modules, time_to_run_tests_on_mutated_modules, time_to_generate_mutated_asts, time_to_mutate_module, total_time,
+    # Per mutation
+    mutation_id, line_number, operator, status, killer, exception_traceback, number_of_tests_executed, time_to_run_tests_on_mutated_module):
 
     row = {
+        #
         # Overall data
-        'target': target, 'test': test, 'number_of_tests': number_of_tests, 'mutation_score': mutation_score,
+        'target': target, 'test': test, 'number_of_tests': number_of_tests,
+        #
         # Overall time
-        'total_time': total_time, 'time_create_mutant_module': time_create_mutant_module, 'time_create_target_ast': time_create_target_ast, 'time_mutate_module': time_mutate_module, 'time_run_tests_with_mutant': time_run_tests_with_mutant,
-        # Per mutation, if any
-        'mutation_id': mutation_id, 'lineno': lineno, 'operator': operator, 'status': status, 'killer': killer, 'exception_traceback': exception_traceback, 'tests_run': tests_run, 'time': time
+        'time_to_run_tests_on_non_mutated_code': time_to_run_tests_on_non_mutated_code,
+        'time_to_create_targets_ast':            time_to_create_targets_ast,
+        'time_to_create_mutated_modules':        time_to_create_mutated_modules,
+        'time_to_run_tests_on_mutated_modules':  time_to_run_tests_on_mutated_modules,
+        'time_to_generate_mutated_asts':         time_to_generate_mutated_asts,
+        'time_to_mutate_module':                 time_to_mutate_module,
+        'total_time':                            total_time,
+        #
+        # Per mutation
+        'mutation_id':                           mutation_id,
+        'line_number':                           line_number,
+        'operator': operator, 'status': status, 'killer': killer, 'exception_traceback': exception_traceback,
+        'number_of_tests_executed':              number_of_tests_executed,
+        'time_to_run_tests_on_mutated_module':   time_to_run_tests_on_mutated_module
     }
 
     output.writerow(row)
@@ -74,52 +104,53 @@ with open(csv_file, 'w', newline='') as csv_file_output:
         assert len(data['tests']) == 1
         test            = data['tests'][0]['name']
         number_of_tests = data['number_of_tests']
-        mutation_score  = data['mutation_score']
 
         # Overall time data
-        total_time = data['total_time']
-        time_create_target_ast     = data['time_stats']['create_target_ast']
-        time_mutate_module         = data['time_stats']['mutate_module']
+        time_to_run_tests_on_non_mutated_code = data['tests'][0]['time']
+        time_to_create_targets_ast            = data['time_stats']['create_target_ast']
+        time_to_create_mutated_modules        = 'NA'
+        time_to_run_tests_on_mutated_modules  = 'NA'
+        time_to_generate_mutated_asts         = 'NA'
+        time_to_mutate_module                 = data['time_stats']['mutate_module']
+        total_time                            = data['total_time']
 
         if len(data['mutations']) == 0: # No mutations
-            time_create_mutant_module  = 'NA'
-            time_run_tests_with_mutant = 'NA'
-
             # Try to collect mutation operator name from file's path
             operator = yaml_file.split('/')[-2]
 
             write_row_to_csv(csv_output,
-            target, test, number_of_tests, mutation_score,
-            total_time, time_create_mutant_module, time_create_target_ast, time_mutate_module, time_run_tests_with_mutant,
-            'NA', 'NA', operator, 'NA', 'NA', 'NA', 'NA', 'NA')
+                target, test, number_of_tests,
+                time_to_run_tests_on_non_mutated_code, time_to_create_targets_ast, time_to_create_mutated_modules, time_to_run_tests_on_mutated_modules, time_to_generate_mutated_asts, time_to_mutate_module, total_time,
+                'NA', 'NA', operator, 'NA', 'NA', 'NA', 'NA', 'NA')
         else:
-            time_create_mutant_module  = data['time_stats']['create_mutant_module']
+            time_to_create_mutated_modules  = data['time_stats']['create_mutant_module']
             if 'run_tests_with_mutant' in data['time_stats']:
-                time_run_tests_with_mutant = data['time_stats']['run_tests_with_mutant']
+                time_to_run_tests_on_mutated_modules = data['time_stats']['run_tests_with_mutant']
+                time_to_generate_mutated_asts = time_to_mutate_module - time_to_run_tests_on_mutated_modules - time_to_create_targets_ast - time_to_create_mutated_modules
             else:
                 # Incompetent mutants do not have a 'run_tests_with_mutant' field
                 # as the mutated code is invalid and therefore not test could ever
                 # be executed
-                time_run_tests_with_mutant = 'NA'
+                time_to_run_tests_on_mutated_modules = 'NA'
 
             # Mutation data
             for mutation in data['mutations']:
                 mutation_id = mutation['number']
                 assert len(mutation['mutations']) == 1
-                lineno              = mutation['mutations'][0]['lineno']
-                operator            = mutation['mutations'][0]['operator']
-                status              = mutation['status']
-                killer              = mutation['killer']
-                exception_traceback = mutation['exception_traceback']
+                line_number                         = mutation['mutations'][0]['lineno']
+                operator                            = mutation['mutations'][0]['operator']
+                status                              = mutation['status']
+                killer                              = mutation['killer']
+                exception_traceback                 = mutation['exception_traceback']
                 if exception_traceback != None:
                     # Escape \n
-                    exception_traceback = exception_traceback.replace("\n", "\\n")
-                tests_run           = mutation['tests_run']
-                time                = mutation['time']
+                    exception_traceback             = exception_traceback.replace("\n", "\\n")
+                number_of_tests_executed            = mutation['tests_run']
+                time_to_run_tests_on_mutated_module = mutation['time']
 
                 write_row_to_csv(csv_output,
-                target, test, number_of_tests, mutation_score,
-                total_time, time_create_mutant_module, time_create_target_ast, time_mutate_module, time_run_tests_with_mutant,
-                mutation_id, lineno, operator, status, killer, exception_traceback, tests_run, time)
+                    target, test, number_of_tests,
+                    time_to_run_tests_on_non_mutated_code, time_to_create_targets_ast, time_to_create_mutated_modules, time_to_run_tests_on_mutated_modules, time_to_generate_mutated_asts, time_to_mutate_module, total_time,
+                    mutation_id, line_number, operator, status, killer, exception_traceback, number_of_tests_executed, time_to_run_tests_on_mutated_module)
 
 # EOF

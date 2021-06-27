@@ -81,9 +81,6 @@ load_exps_data <- function(data_file='../data/qiskit-aqua-all-mutation-operators
   # Runtime check
   stopifnot(nrow(df[is.na(df$'operator'), ]) == 0)
 
-  # Remove unused and misleading 'mutation_score' column
-  df <- df[ , -which(names(df) %in% c('mutation_score'))]
-
   # Replace empty cells with NA
   df[df == ''] <- NA
   # Short names to plot
