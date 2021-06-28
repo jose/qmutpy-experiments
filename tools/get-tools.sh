@@ -199,6 +199,9 @@ cd "$QISKIT_AQUA_DIR"
   # Install Qiskit Aqua's dependencies
   pip install -r requirements-dev.txt || die "[ERROR] Failed to install dev requirements!"
   pip install pyscf                   || die "[ERROR] Failed to install 'pyscf' which is required by, e.g., https://github.com/Qiskit/qiskit-aqua/blob/stable/0.9/test/chemistry/test_bopes_sampler.py test suite!"
+  pip install qiskit-aqua[cplex]      || die "[ERROR] Failed to install the 'CPLEX' library which is required to use 'SimpleCPLEX'!"
+  pip install qiskit-aqua[cvx]        || die "[ERROR] Failed to install the 'CVXPY' library is required to use the 'optimize_svm' module!"
+  pip install torch                   || die "[ERROR] Failed to install the 'PyTorch' library!"
   # Install Qiskit Aqua
   python setup.py install             || die "[ERROR] Failed to install Qiskit Aqua!"
   # Freeze requirements/dependencies
