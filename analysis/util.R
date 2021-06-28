@@ -74,21 +74,15 @@ set_relative_widths_to_all_facet_columns <- function(plot) {
 load_exps_data <- function(data_file='../data/qiskit-aqua-all-mutation-operators.csv') {
   # Load data
   df <- load_CSV(data_file)
-  # target,test,number_of_tests,mutation_score,
-  # total_time,time_create_mutant_module,time_create_target_ast,time_mutate_module,time_run_tests_with_mutant,
-  # mutation_id,lineno,operator,status,killer,exception_traceback,tests_run,time
+  # target,test,number_of_tests,
+  # time_to_run_tests_on_non_mutated_code,time_to_create_targets_ast,time_to_create_mutated_modules,time_to_run_tests_on_mutated_modules,time_to_generate_mutated_asts,time_to_mutate_module,total_time,
+  # mutation_id,line_number,operator,status,killer,exception_traceback,number_of_tests_executed,time_to_run_tests_on_mutated_module
 
   # Runtime check
   stopifnot(nrow(df[is.na(df$'operator'), ]) == 0)
-
   # Replace empty cells with NA
   df[df == ''] <- NA
-  # Short names to plot
-  df$'short_target' <- sapply(df$'target', get_short_name)
-  # Sort short names
-  df$'short_target' <- factor(df$'short_target', levels=sort(unique(df$'short_target'), decreasing=TRUE))
-
-  ##
+  #
   # Augment experiments' data with code coverage data
   #
   # algorithm_full_name,test_suite_full_name,number_of_tests,file,statement,line,covered,excluded
@@ -96,13 +90,13 @@ load_exps_data <- function(data_file='../data/qiskit-aqua-all-mutation-operators
   # Rename some columns to ease merge
   names(tests_coverage)[names(tests_coverage) == 'algorithm_full_name']  <- 'target'
   names(tests_coverage)[names(tests_coverage) == 'test_suite_full_name'] <- 'test'
-  names(tests_coverage)[names(tests_coverage) == 'line']                 <- 'lineno'
+  names(tests_coverage)[names(tests_coverage) == 'line']                 <- 'line_number'
   # Drop some columns
   tests_coverage <- subset(tests_coverage, select=-c(number_of_tests, file, statement))
   # Merge data
-  df <- merge(df, tests_coverage, by=c('target', 'test', 'lineno'), all.x=TRUE)
+  df <- merge(df, tests_coverage, by=c('target', 'test', 'line_number'), all=TRUE)
   # Runtime check, number of NaNs must be exactly the same
-  stopifnot(nrow(df[is.na(df$'lineno'), ]) == nrow(df[is.na(df$'covered'), ]))
+  stopifnot(nrow(df[is.na(df$'line_number'), ]) == nrow(df[is.na(df$'covered'), ]))
   # Create two new 'survived' status:
   #  - survived-covered: mutants that survived and are covered/exercised by the test suite
   #  - survived-not-covered: mutants that survived and are not covered/exercised by the test suite
@@ -110,12 +104,6 @@ load_exps_data <- function(data_file='../data/qiskit-aqua-all-mutation-operators
   df$'status'[!is.na(df$'status') & df$'status' == 'survived' & !is.na(df$'covered') & df$'covered' == 0] <- 'survived-not-covered'
   # Set status' factors
   df$'status' <- factor(df$'status', levels=c('incompetent', 'killed', 'survived-covered', 'survived-not-covered', 'timeout'))
-
-  # TODO Is mutation time per mutant
-  #   time_create_mutant_module + time_create_target_ast + time_mutate_module + time_run_tests_with_mutant
-  #   or just
-  #   time?  or is time that same sum?
-  # TODO do we want to report time on minutes or seconds? better way to answer this is to try to plot both
 
   return(df)
 }
