@@ -22,12 +22,10 @@ df <- merge(exps_data, mutation_operators, by='operator')
 
 # ------------------------------------------------------ summarize targets' data
 
-# TODO split '# Survived' column into '# Survived (covered)' and '# Survived (not covered)'
-
 # at algorithm level
 
-write_table_content <- function(df, column) {
-  for (column_value in sort(unique(df[[column]]))) {
+write_table_content <- function(df, column, sort_order=TRUE) {
+  for (column_value in sort(unique(df[[column]]), decreasing=sort_order)) {
     mask <- !is.na(df$'status') & df[[column]] == column_value
     cat(replace_string(column_value, '_', '\\\\_'), sep='')
 
@@ -65,7 +63,7 @@ write_table_content <- function(df, column) {
         cat(' & ', sprintf("%.2f", round(mutation_score_a, 2)), ' / ', sprintf("%.2f", round(mutation_score_b, 2)), sep='')
       }
 
-      time_in_seconds <- sum(df$'time'[mask])
+      time_in_seconds <- sum(df$'total_time'[mask])
       time_in_minutes <- time_in_seconds / 60
       cat(' & ', sprintf("%.2f", round(time_in_minutes, 2)), sep='')
     }
@@ -108,12 +106,12 @@ cat('\\multicolumn{1}{c}{Operator} & \\multicolumn{1}{c}{\\# Mutants} & \\multic
 cat('\\midrule\n', sep='')
 cat('\\rowcolor{gray!25}\n', sep='')
 cat('\\multicolumn{6}{c}{\\textbf{\\textit{Traditional mutants}}} \\\\\n', sep='')
-write_table_content(df[df$'mutation_operator_type' == 'traditional', ], 'operator')
+write_table_content(df[df$'mutation_operator_type' == 'traditional', ], 'operator', FALSE)
 
 cat('\\midrule\n', sep='')
 cat('\\rowcolor{gray!25}\n', sep='')
 cat('\\multicolumn{6}{c}{\\textbf{\\textit{Quantum-based mutants}}} \\\\\n', sep='')
-write_table_content(df[df$'mutation_operator_type' == 'quantum', ], 'operator')
+write_table_content(df[df$'mutation_operator_type' == 'quantum', ], 'operator', FALSE)
 
 cat('\\bottomrule\n', sep='')
 cat('\\end{tabular}\n', sep='')
