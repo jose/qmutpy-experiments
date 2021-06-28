@@ -97,6 +97,10 @@ load_exps_data <- function(data_file='../data/qiskit-aqua-all-mutation-operators
   df <- merge(df, tests_coverage, by=c('target', 'test', 'line_number'), all=TRUE)
   # Runtime check, number of NaNs must be exactly the same
   stopifnot(nrow(df[is.na(df$'line_number'), ]) == nrow(df[is.na(df$'covered'), ]))
+  # Short names to plot
+  df$'short_target' <- sapply(df$'target', get_short_name)
+  # Set short names' factors and sort them
+  df$'short_target' <- factor(df$'short_target', levels=sort(unique(df$'short_target'), decreasing=TRUE))
   # Create two new 'survived' status:
   #  - survived-covered: mutants that survived and are covered/exercised by the test suite
   #  - survived-not-covered: mutants that survived and are not covered/exercised by the test suite
