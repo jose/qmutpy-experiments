@@ -7,9 +7,9 @@
 # Once all test suites have been analyzed, this scripts collects all data in a
 # single CSV file (tests-coverage.csv) which follows the following format:
 #
-#    algorithm_full_name,test_suite_full_name,number_of_tests,file,statement,line,covered,excluded
-#    qiskit.aqua.algorithms.amplitude_amplifiers.grover,test.aqua.test_grover,qiskit/aqua/algorithms/amplitude_amplifiers/grover.py,5,12,12,1,0
-#    qiskit.aqua.algorithms.amplitude_amplifiers.grover,test.aqua.test_grover,qiskit/aqua/algorithms/amplitude_amplifiers/grover.py,5,12,13,1,0
+#    algorithm_full_name,test_suite_full_name,number_of_tests,number_of_tests_skipped,file,statement,line,covered,excluded
+#    qiskit.aqua.algorithms.amplitude_amplifiers.grover,test.aqua.test_grover,5,0,qiskit/aqua/algorithms/amplitude_amplifiers/grover.py,12,12,1,0
+#    qiskit.aqua.algorithms.amplitude_amplifiers.grover,test.aqua.test_grover,5,0,qiskit/aqua/algorithms/amplitude_amplifiers/grover.py,12,13,1,0
 #
 # where:
 # - algorithm_full_name represents the algorithm's canonical name as, e.g.,
@@ -18,6 +18,8 @@
 #   e.g., test.aqua.test_grover
 # - number_of_tests represents the number of test cases executed during code
 #   coverage analysis
+# - number_of_tests_skipped represents the number of test cases excluded by the
+# test framework
 # - file represents the file for which coverage was collected, e.g.,
 #   qiskit/aqua/algorithms/amplitude_amplifiers/grover.py
 # - statement represent a statement code which might be include several lines of
@@ -90,6 +92,13 @@ cd "$QUANTUM_FRAMEWORK_ROOT_PATH"
     [ "$?" -eq "0" ] || die "[ERROR] Failed to collect number of tests executed!"
     [ "$number_of_tests" != "" ] || die "[ERROR] number of tests executed cannot be empty!"
 
+    # Collect number of skipped tests
+    number_of_tests_skipped=0
+    if grep -Eq "^OK \(skipped=[1-9]+\)" "$run_log_file"; then
+      number_of_tests_skipped=$(grep -E "^OK \(skipped=[1-9]+\)" "$run_log_file" | cut -f2 -d'=' | cut -f1 -d')')
+    fi
+    [ "$number_of_tests_skipped" != "" ] || die "[ERROR] number of tests skipped cannot be empty!"
+
     # Print to stdout the coverage collected
     coverage report -m "$(echo $algorithm_full_name | tr '.' '/').py" || die "[ERROR] Failed to run coverage report for $algorithm_full_name!"
 
@@ -102,9 +111,9 @@ cd "$QUANTUM_FRAMEWORK_ROOT_PATH"
 
     # Collect data in a single CSV
     if [ ! -f "$TEST_COVERAGE_CSV" ]; then # header
-      head -n1 "$csv_cov_file" | sed 's|^|algorithm_full_name,test_suite_full_name,number_of_tests,|g' > "$TEST_COVERAGE_CSV" || die "[ERROR] Failed to create $TEST_COVERAGE_CSV!"
+      head -n1 "$csv_cov_file" | sed 's|^|algorithm_full_name,test_suite_full_name,number_of_tests,number_of_tests_skipped,|g' > "$TEST_COVERAGE_CSV" || die "[ERROR] Failed to create $TEST_COVERAGE_CSV!"
     fi
-    tail -n +2 "$csv_cov_file" | sed "s|^|$algorithm_full_name,$algorithm_test_suite_full_name,$number_of_tests,|g" >> "$TEST_COVERAGE_CSV" || die "[ERROR] Failed to populate $TEST_COVERAGE_CSV!"
+    tail -n +2 "$csv_cov_file" | sed "s|^|$algorithm_full_name,$algorithm_test_suite_full_name,$number_of_tests,$number_of_tests_skipped,|g" >> "$TEST_COVERAGE_CSV" || die "[ERROR] Failed to populate $TEST_COVERAGE_CSV!"
   done < <(tail -n +2 "$QUANTUM_SUBJECTS_FILE_PATH")
 
   _deactivate_virtual_environment || die
