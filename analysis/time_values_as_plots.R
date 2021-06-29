@@ -1,4 +1,4 @@
-# This script plots times as boxplots and barplots.
+# This script plots time values as boxplots.
 #
 # Usage:
 #   Rscript time_values_as_plots.R <output pdf file>
@@ -15,19 +15,37 @@ OUTPUT_FILE <- args[1]
 
 # Load data
 df <- load_exps_data()
-# target,test,number_of_tests,mutation_score,
-# total_time,time_create_mutant_module,time_create_target_ast,time_mutate_module,time_run_tests_with_mutant,
-# mutation_id,lineno,operator,status,killer,exception_traceback,tests_run,time
+# Discard any row for which there is no mutation data
+df <- df[!is.na(df$'status'), ]
+# Discard 'incompetent' mutants
+df <- df[df$'status' != 'incompetent', ]
 
-agg <- aggregate(cbind(time_create_mutant_module, time_create_target_ast, time_mutate_module) ~ target + operator, df, FUN=mean)
-# TODO compute relative times as some target require more time to mutate, e.g.,
+# Compute relative times as some targets require more time to mutate, e.g.,
 # because they have many more place to mutate
+df$'time_to_generate_mutated_ast'  <- NA
+df$'time_to_create_mutated_module' <- NA
+for (operator in unique(df$'operator')) {
+  for (target in unique(df$'target')) {
+    mask        <- df$'operator' == operator & df$'target' == target
+    num_mutants <- length(unique(df$'mutation_id'[mask]))
+
+    if (num_mutants == 0) {
+      df$'time_to_generate_mutated_ast'[mask]  <- 0
+      df$'time_to_create_mutated_module'[mask] <- 0
+    } else {
+      df$'time_to_generate_mutated_ast'[mask]  <- df$'time_to_generate_mutated_asts'[mask] / num_mutants
+      df$'time_to_create_mutated_module'[mask] <- df$'time_to_create_mutated_modules'[mask] / num_mutants
+    }
+  }
+}
+# Select relevant columns
+df <- subset(df, select=c(target, operator, time_to_generate_mutated_ast, time_to_create_mutated_module))
 
 reshape_and_melt <- function(df, vars) {
   melt <- reshape2::melt(df, id.vars=vars)
 
   # Sort operators
-   # TODO sort operators based on the order in ../qmutpy-support/mutation-operators.csv
+  # TODO sort operators based on the order in ../qmutpy-support/mutation-operators.csv
   melt$'operator' <- factor(melt$'operator', levels=c(
     # Traditional mutants
     'AOD', 'AOR', 'ASR', 'BCR', 'COD', 'COI', 'CRP', 'DDL', 'EHD', 'EXS', 'IHD', 'IOD', 'IOP', 'LCR', 'LOD', 'LOR', 'ROR', 'SCD', 'SCI', 'SIR',
@@ -41,9 +59,8 @@ reshape_and_melt <- function(df, vars) {
   # Un-factorize
   melt$'variable' <- as.character(melt$'variable')
   # Pretty print legent items
-  melt$'variable'[melt$'variable' == 'time_create_mutant_module'] <- 'Create mutant module'
-  melt$'variable'[melt$'variable' == 'time_create_target_ast']    <- 'Create target AST'
-  melt$'variable'[melt$'variable' == 'time_mutate_module']        <- 'Mutate module'
+  melt$'variable'[melt$'variable' == 'time_to_generate_mutated_ast']  <- 'Generate mutant'
+  melt$'variable'[melt$'variable' == 'time_to_create_mutated_module'] <- 'Create mutated module'
   # Re-factorize with the factor
   melt$'variable' <- factor(melt$'variable', level=unique(melt$'variable'))
 
@@ -56,7 +73,7 @@ plot_label('Time values')
 
 # ------------------------------------------------------------------- as boxplot
 
-melt <- reshape_and_melt(agg, c('operator', 'target'))
+melt <- reshape_and_melt(df, c('operator', 'target'))
 
 # Label
 plot_label('Distribution as boxplot')
@@ -67,27 +84,7 @@ p <- p + facet_grid( ~ type, scale='free', space='free')
 # Change x axis label
 p <- p + scale_x_discrete(name='Operator')
 # Change y axis label and control its scale
-p <- p + scale_y_continuous(name='Time (seconds)\nlog2 scale', trans='log2', labels=function(x) format(round(x, 2), scientific=FALSE))
-# Remove legend's title and move it to the top
-p <- p + theme(legend.title=element_blank(), legend.position='top')
-# Plot it
-print(p)
-
-# ------------------------------------------------------------------ as geom-bar
-
-agg <- aggregate(cbind(time_create_mutant_module, time_create_target_ast, time_mutate_module) ~ operator, agg, FUN=mean)
-melt <- reshape_and_melt(agg, c('operator'))
-
-# Label
-plot_label('As geom-bars')
-# Basic box plot with colors by groups
-p <- ggplot(data=melt, aes(x=operator, y=value, fill=variable)) + geom_bar(stat='identity', color='white', size=0.01)
-# Facets
-p <- p + facet_grid( ~ type, scale='free', space='free')
-# Change x axis label
-p <- p + scale_x_discrete(name='Operator')
-# Change y axis label and control its scale
-p <- p + scale_y_continuous(name='Time (seconds)\nlog2 scale', trans='log2', labels=function(x) format(round(x, 2), scientific=FALSE))
+p <- p + scale_y_continuous(name='Time (seconds)\nlog scale', trans='log', labels=function(x) format(round(x, 2), scientific=FALSE))
 # Remove legend's title and move it to the top
 p <- p + theme(legend.title=element_blank(), legend.position='top')
 # Plot it
