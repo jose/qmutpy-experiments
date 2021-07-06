@@ -160,9 +160,17 @@ process_targets_mutation_data <- function(df) {
   df <- df[!is.na(df$'operator'), ]
 
   # Compute line mutation data
-  #   - Ratio of lines with at least one mutant
+  #   - Number of lines with at least one mutant
   #   - Average number of mutants per mutated line
-  # TODO
+  # Number of mutants per lines of code
+  num_mutants_per_line_number <- aggregate(mutation_id ~ short_target + mutation_operator_type + line_number, df, FUN=length)
+  names(num_mutants_per_line_number)[names(num_mutants_per_line_number) == 'mutation_id'] <- 'num_mutants_per_line_number'
+  avg_mutants_per_line_number <- aggregate(num_mutants_per_line_number ~ short_target + mutation_operator_type, num_mutants_per_line_number, FUN=mean)
+  # Number of mutated lines
+  num_lines_mutated <- aggregate(line_number ~ short_target + mutation_operator_type, num_mutants_per_line_number, FUN=length)
+  names(num_lines_mutated)[names(num_lines_mutated) == 'line_number'] <- 'num_lines_mutated'
+  # Merge distribution of mutated lines
+  mutants_distribution_df <- merge(num_lines_mutated, avg_mutants_per_line_number, by=c('short_target', 'mutation_operator_type'))
 
   # Reshape data at mutation operator level, as for each mutation operator we
   # might have a different number of mutations
@@ -184,6 +192,11 @@ process_targets_mutation_data <- function(df) {
   stopifnot(max(dcast_df$'mutation_score_ignoring_survided_not_covered', na.rm=TRUE) <= 100.0)
   # Recompute total_time
   dcast_df$'total_time' <- dcast_df$'total_time' * dcast_df$'num_mutants'
+
+  # Merge mutation data with distribution of mutated lines
+  n <- nrow(dcast_df)
+  dcast_df <- merge(dcast_df, mutants_distribution_df, by=c('short_target', 'mutation_operator_type'), all.x=TRUE)
+  stopifnot(n == nrow(dcast_df))
 
   # TODO in case we might need to compute non-relative mutation score, we first
   # need to aggregate data and only then apply a reshape2::dcast

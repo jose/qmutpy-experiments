@@ -22,7 +22,7 @@ df <- process_targets_mutation_data(df)
 
 write_table_content <- function(df, entries, column) {
   agg_sum  <- aggregate(as.formula(paste("cbind(num_mutants, killed, survived_covered, survived_not_covered, incompetent, timeout, total_time) ~ ", column, sep='')), df, FUN=sum)
-  agg_mean <- aggregate(as.formula(paste("cbind(mutation_score_ignoring_survided_status, mutation_score_ignoring_survided_not_covered) ~ ", column, sep='')), df, FUN=mean)
+  agg_mean <- aggregate(as.formula(paste("cbind(mutation_score_ignoring_survided_status, mutation_score_ignoring_survided_not_covered, num_lines_mutated, num_mutants_per_line_number) ~ ", column, sep='')), df, FUN=mean)
   mutation_df <- merge(agg_sum, agg_mean, by=column, all=TRUE)
 
   for (entry in entries) {
@@ -39,6 +39,7 @@ write_table_content <- function(df, entries, column) {
       if (column == 'short_target') {
         cat(' & ', '---', sep='')
         cat(' & ', '---', sep='')
+        cat(' & ', '---', sep='')
       }
       cat(' \\\\\n', sep='')
       next
@@ -52,6 +53,10 @@ write_table_content <- function(df, entries, column) {
     stopifnot(num_mutants <= num_mutants_killed + num_mutants_survived_covered + num_mutants_survived_not_covered + num_mutants_incompetent + num_mutants_timeout)
 
     cat(' & ', num_mutants, sep='')
+    if (column == 'short_target') {
+      cat(' & ', sprintf("%.0f", round(mutation_df$'num_lines_mutated'[mask], 0)), sep='')
+      cat(' (', sprintf("%.2f", round(mutation_df$'num_mutants_per_line_number'[mask], 2)), ')', sep='')
+    }
     cat(' & ', num_mutants_killed, sep='')
     cat(' & ', num_mutants_survived_covered, ' / ', num_mutants_survived_not_covered, sep='')
     cat(' & ', num_mutants_incompetent, sep='')
@@ -76,13 +81,13 @@ per_algorithm_tex_file <- paste(OUTPUT_DIR_PATH, .Platform$file.sep, 'summary_mu
 unlink(per_algorithm_tex_file)
 sink(per_algorithm_tex_file, append=FALSE, split=TRUE)
 
-cat('\\begin{tabular}{@{\\extracolsep{\\fill}} l rrrrrrr} \\toprule\n', sep='')
-cat('\\multicolumn{1}{c}{Algorithm} & \\multicolumn{1}{c}{\\# Mutants} & \\multicolumn{1}{c}{\\# Killed} & \\multicolumn{1}{c}{\\# Survived} & \\multicolumn{1}{c}{\\# Incompetent} & \\multicolumn{1}{c}{\\# Timeout} & \\multicolumn{1}{c}{\\% Score} & \\multicolumn{1}{c}{Runtime (minutes)} \\\\\n', sep='')
+cat('\\begin{tabular}{@{\\extracolsep{\\fill}} l rrrrrrrr} \\toprule\n', sep='')
+cat('\\multicolumn{1}{c}{Algorithm} & \\multicolumn{1}{c}{\\# Mutants} & \\multicolumn{1}{c}{\\# Mutated LOC} & \\multicolumn{1}{c}{\\# Killed} & \\multicolumn{1}{c}{\\# Survived} & \\multicolumn{1}{c}{\\# Incompetent} & \\multicolumn{1}{c}{\\# Timeout} & \\multicolumn{1}{c}{\\% Score} & \\multicolumn{1}{c}{Runtime} \\\\\n', sep='')
 
 for (type in c(TRADITIONAL_MUTATION_OPERATOR_TYPE_STR, QUANTUM_MUTATION_OPERATOR_TYPE_STR)) {
   cat('\\midrule\n', sep='')
   cat('\\rowcolor{gray!25}\n', sep='')
-  cat('\\multicolumn{8}{c}{\\textbf{\\textit{', type, ' mutants}}} \\\\\n', sep='')
+  cat('\\multicolumn{9}{c}{\\textbf{\\textit{', type, ' mutants}}} \\\\\n', sep='')
   targets <- sort(unique(df$'short_target'), decreasing=TRUE)
   write_table_content(df[df$'mutation_operator_type' == type, ], targets, 'short_target')
 }
