@@ -71,6 +71,9 @@ set_relative_widths_to_all_facet_columns <- function(plot) {
 
 # ---------------------------------------------------------------- Study related
 
+TRADITIONAL_MUTATION_OPERATOR_TYPE_STR <- 'Traditional'
+QUANTUM_MUTATION_OPERATOR_TYPE_STR     <- 'Quantum-based'
+
 load_exps_data <- function(data_file='../data/qiskit-aqua-all-mutation-operators.csv') {
   # Load data
   df <- load_CSV(data_file)
@@ -82,6 +85,7 @@ load_exps_data <- function(data_file='../data/qiskit-aqua-all-mutation-operators
   stopifnot(nrow(df[is.na(df$'operator'), ]) == 0)
   # Replace empty cells with NA
   df[df == ''] <- NA
+
   #
   # Augment experiments' data with code coverage data
   #
@@ -102,12 +106,36 @@ load_exps_data <- function(data_file='../data/qiskit-aqua-all-mutation-operators
   # Set short names' factors and sort them
   df$'short_target' <- factor(df$'short_target', levels=sort(unique(df$'short_target'), decreasing=TRUE))
   # Create two new 'survived' status:
-  #  - survived-covered: mutants that survived and are covered/exercised by the test suite
-  #  - survived-not-covered: mutants that survived and are not covered/exercised by the test suite
-  df$'status'[!is.na(df$'status') & df$'status' == 'survived' & !is.na(df$'covered') & df$'covered' == 1] <- 'survived-covered'
-  df$'status'[!is.na(df$'status') & df$'status' == 'survived' & !is.na(df$'covered') & df$'covered' == 0] <- 'survived-not-covered'
+  #  - survived_covered: mutants that survived and are covered/exercised by the test suite
+  #  - survived_not_covered: mutants that survived and are not covered/exercised by the test suite
+  df$'status'[!is.na(df$'status') & df$'status' == 'survived' & !is.na(df$'covered') & df$'covered' == 1] <- 'survived_covered'
+  df$'status'[!is.na(df$'status') & df$'status' == 'survived' & !is.na(df$'covered') & df$'covered' == 0] <- 'survived_not_covered'
   # Set status' factors
-  df$'status' <- factor(df$'status', levels=c('incompetent', 'killed', 'survived-covered', 'survived-not-covered', 'timeout'))
+  df$'status' <- factor(df$'status', levels=c('incompetent', 'killed', 'survived_covered', 'survived_not_covered', 'timeout'))
+
+  #
+  # Augment experiments' data with mutation operators' data
+  #
+  # mutation_operator_description,mutation_operator_id,mutation_operator_type
+  mutation_operators <- load_CSV('../qmutpy-support/mutation-operators.csv')
+  # Rename column 'mutation_operator_id' to ease merge
+  names(mutation_operators)[names(mutation_operators) == 'mutation_operator_id'] <- 'operator'
+  # Pretty print mutants' type
+  mutation_operators$'mutation_operator_type'[mutation_operators$'mutation_operator_type' == 'traditional'] <- TRADITIONAL_MUTATION_OPERATOR_TYPE_STR
+  mutation_operators$'mutation_operator_type'[mutation_operators$'mutation_operator_type' == 'quantum']     <- QUANTUM_MUTATION_OPERATOR_TYPE_STR
+  # Select relevant columns
+  mutation_operators <- subset(mutation_operators, select=c(operator, mutation_operator_type))
+  # Augment data.frame
+  df <- merge(df, mutation_operators, by='operator', all=TRUE)
+  # Set operator type's factor
+  df$'mutation_operator_type' <- factor(df$'mutation_operator_type', levels=c(TRADITIONAL_MUTATION_OPERATOR_TYPE_STR, QUANTUM_MUTATION_OPERATOR_TYPE_STR))
+  # Set and sort operator's factors
+  df$'operator' <- factor(df$'operator', levels=c(
+    # First, traditional mutation operators
+    'AOD', 'AOR', 'ASR', 'BCR', 'COD', 'COI', 'CRP', 'DDL', 'EHD', 'EXS', 'IHD', 'IOD', 'IOP', 'LCR', 'LOD', 'LOR', 'ROR', 'SCD', 'SCI', 'SIR',
+    # Then, quantum-based mutation operators
+    'QGD', 'QGI', 'QGR', 'QMD', 'QMI'
+  ))
 
   return(df)
 }
@@ -120,6 +148,87 @@ load_exps_data <- function(data_file='../data/qiskit-aqua-all-mutation-operators
 get_short_name <- function(full_name) {
   l <- unlist(strsplit(full_name, "\\."))
   return(l[[length(l)]])
+}
+
+#
+# Given a data.frame with target's mutation data, it summarizes data in a
+# dataframe (including several mutation scores).
+#
+process_targets_mutation_data <- function(df) {
+  # Exclude data points with no mutation operator information (i.e., lines of
+  # code for each there was no mutant)
+  df <- df[!is.na(df$'operator'), ]
+
+  # Compute line mutation data
+  #   - Ratio of lines with at least one mutant
+  #   - Average number of mutants per mutated line
+  # TODO
+
+  # Reshape data at mutation operator level, as for each mutation operator we
+  # might have a different number of mutations
+  dcast_df <- reshape2::dcast(df, short_target + operator + mutation_operator_type + total_time ~ status, value.var='status')
+  if (c('incompetent') %!in% colnames(dcast_df)) {
+    dcast_df$'incompetent' <- 0
+  }
+  dcast_df$'num_mutants'                                  <- dcast_df$'killed' + dcast_df$'incompetent' + dcast_df$'timeout' + dcast_df$'survived_covered' + dcast_df$'survived_not_covered'
+  dcast_df$'mutation_score_ignoring_survided_status'      <- dcast_df$'killed' / (dcast_df$'num_mutants' - dcast_df$'incompetent') * 100.0
+  dcast_df$'mutation_score_ignoring_survided_not_covered' <- dcast_df$'killed' / (dcast_df$'num_mutants' - dcast_df$'incompetent' - dcast_df$'survived_not_covered') * 100.0
+  # Fix divisions by zero
+  dcast_df$'mutation_score_ignoring_survided_status'[is.nan(dcast_df$'mutation_score_ignoring_survided_status')]           <- 0
+  dcast_df$'mutation_score_ignoring_survided_not_covered'[is.nan(dcast_df$'mutation_score_ignoring_survided_not_covered')] <- 0
+  #
+  dcast_df$'mutation_score_ignoring_survided_status'[dcast_df$'num_mutants' == 0]      <- NA
+  dcast_df$'mutation_score_ignoring_survided_not_covered'[dcast_df$'num_mutants' == 0] <- NA
+  # Runtime check
+  stopifnot(max(dcast_df$'mutation_score_ignoring_survided_status', na.rm=TRUE) <= 100.0)
+  stopifnot(max(dcast_df$'mutation_score_ignoring_survided_not_covered', na.rm=TRUE) <= 100.0)
+  # Recompute total_time
+  dcast_df$'total_time' <- dcast_df$'total_time' * dcast_df$'num_mutants'
+
+  # TODO in case we might need to compute non-relative mutation score, we first
+  # need to aggregate data and only then apply a reshape2::dcast
+
+  return(dcast_df)
+}
+
+#
+# Given a data.frame with target's test coverage data, it summarizes data in a
+# dataframe.
+#
+process_targets_coverage_data <- function(df) {
+  # Aggregate data at line level, as for each line we could have several mutations
+  agg_df    <- aggregate(cbind(covered, excluded, number_of_tests, time_to_run_tests_on_non_mutated_code) ~ short_target + line_number, df, FUN=mean, na.action=na.pass)
+  # short_target,line_number,covered,excluded,number_of_tests,time_to_run_tests_on_non_mutated_code
+  # simon,1,1,0,NA,NA
+  # simon,2,1,0,NA,NA
+  # simon,3,0,0,48,11.95624
+
+  # Count number of unique lines per target
+  agg_count <- aggregate(line_number ~ short_target, agg_df, FUN=length)
+  # Rename 'line_number' -> 'num_lines'
+  names(agg_count)[names(agg_count) == "line_number"] <- "num_lines"
+  # short_target,num_lines
+  # simon,89
+
+  # Compute total number of lines covered by the test suite
+  agg_sum   <- aggregate(cbind(covered, excluded) ~ short_target, agg_df, FUN=sum)
+  # short_target,covered,excluded
+  # simon,88,0
+
+  # Compute number of tests and average runtime
+  # number_of_tests, time_to_run_tests_on_non_mutated_code
+  agg_mean <- aggregate(cbind(number_of_tests, time_to_run_tests_on_non_mutated_code) ~ short_target, agg_df, FUN=mean)
+
+  # Merge all data.frames
+  cov_df    <- merge(agg_mean, merge(agg_count, agg_sum, by='short_target'), by='short_target')
+  # Compute line coverage
+  cov_df$'line_coverage' <- cov_df$'covered' / cov_df$'num_lines' * 100.0
+  stopifnot(cov_df$'line_coverage' <= 100.0)
+  # short_target,number_of_tests,time_to_run_tests_on_non_mutated_code,num_lines,covered,excluded,line_coverage
+  # simon,48,17.20753,89,88,0,98.8764
+
+  # Return computed coverage data
+  return(cov_df)
 }
 
 # EOF

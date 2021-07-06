@@ -14,57 +14,55 @@ if (length(args) != 1) {
 OUTPUT_DIR_PATH <- args[1]
 
 # Load data
-exps_data          <- load_exps_data()
-mutation_operators <- load_CSV('../qmutpy-support/mutation-operators.csv')
-names(mutation_operators)[names(mutation_operators) == 'mutation_operator_id'] <- 'operator'
-# Merge data
-df <- merge(exps_data, mutation_operators, by='operator')
+df <- load_exps_data()
+# Process mutation data
+df <- process_targets_mutation_data(df)
 
-# ------------------------------------------------------ summarize targets' data
+# --------------------------------------------------------------- summarize data
 
-# at algorithm level
+write_table_content <- function(df, entries, column) {
+  agg_sum  <- aggregate(as.formula(paste("cbind(num_mutants, killed, survived_covered, survived_not_covered, incompetent, timeout, total_time) ~ ", column, sep='')), df, FUN=sum)
+  agg_mean <- aggregate(as.formula(paste("cbind(mutation_score_ignoring_survided_status, mutation_score_ignoring_survided_not_covered) ~ ", column, sep='')), df, FUN=mean)
+  mutation_df <- merge(agg_sum, agg_mean, by=column, all=TRUE)
 
-write_table_content <- function(df, column, sort_order=TRUE) {
-  for (column_value in sort(unique(df[[column]]), decreasing=sort_order)) {
-    mask <- !is.na(df$'status') & df[[column]] == column_value
-    cat(replace_string(column_value, '_', '\\\\_'), sep='')
+  for (entry in entries) {
+    mask <- mutation_df[[column]] == entry
+    cat(replace_string(entry, '_', '\\\\_'), sep='')
 
-    num_mutants <- nrow(df[mask, ])
-    cat(' & ', num_mutants, sep='')
-    if (num_mutants == 0) {
+    num_mutants <- mutation_df$'num_mutants'[mask]
+    if (dim(mutation_df[mask, ])[1] == 0 || num_mutants == 0) {
+      cat(' & ', '0', sep='')
+      cat(' & ', '---', sep='')
+      cat(' & ', '---', sep='')
+      cat(' & ', '---', sep='')
+      cat(' & ', '---', sep='')
       if (column == 'short_target') {
-        cat(' & --- & --- & --- & --- & --- & ---', sep='')
-      } else if (column == 'operator') {
-        cat(' & --- & --- & --- & ---', sep='')
+        cat(' & ', '---', sep='')
+        cat(' & ', '---', sep='')
       }
       cat(' \\\\\n', sep='')
       next
     }
 
-    num_mutants_killed <- nrow(df[mask & df$'status' == 'killed', ])
+    num_mutants_killed               <- mutation_df$'killed'[mask]
+    num_mutants_survived_covered     <- mutation_df$'survived_covered'[mask]
+    num_mutants_survived_not_covered <- mutation_df$'survived_not_covered'[mask]
+    num_mutants_incompetent          <- mutation_df$'incompetent'[mask]
+    num_mutants_timeout              <- mutation_df$'timeout'[mask]
+    stopifnot(num_mutants <= num_mutants_killed + num_mutants_survived_covered + num_mutants_survived_not_covered + num_mutants_incompetent + num_mutants_timeout)
+
+    cat(' & ', num_mutants, sep='')
     cat(' & ', num_mutants_killed, sep='')
-
-    num_mutants_survived_covered     <- nrow(df[mask & df$'status' == 'survived-covered', ])
-    num_mutants_survived_not_covered <- nrow(df[mask & df$'status' == 'survived-not-covered', ])
     cat(' & ', num_mutants_survived_covered, ' / ', num_mutants_survived_not_covered, sep='')
-
-    num_mutants_incompetent <- nrow(df[mask & df$'status' == 'incompetent', ])
     cat(' & ', num_mutants_incompetent, sep='')
-
-    num_mutants_timeout <- nrow(df[mask & df$'status' == 'timeout', ])
     cat(' & ', num_mutants_timeout, sep='')
 
     if (column == 'short_target') {
-      mutation_score_a <- (num_mutants_killed / (num_mutants - num_mutants_incompetent)) * 100.0
-      mutation_score_b <- (num_mutants_killed / (num_mutants - num_mutants_incompetent - num_mutants_survived_not_covered)) * 100.0
-      if (is.nan(mutation_score_a)) {
-        cat(' & ---', sep='')
-      } else {
-        cat(' & ', sprintf("%.2f", round(mutation_score_a, 2)), ' / ', sprintf("%.2f", round(mutation_score_b, 2)), sep='')
-      }
-
-      time_in_seconds <- sum(df$'total_time'[mask])
-      time_in_minutes <- time_in_seconds / 60
+      time_in_seconds                              <- mutation_df$'total_time'[mask]
+      time_in_minutes                              <- time_in_seconds / 60.0
+      mutation_score_ignoring_survided_status      <- mutation_df$'mutation_score_ignoring_survided_status'[mask]
+      mutation_score_ignoring_survided_not_covered <- mutation_df$'mutation_score_ignoring_survided_not_covered'[mask]
+      cat(' & ', sprintf("%.2f", round(mutation_score_ignoring_survided_status, 2)), ' / ', sprintf("%.2f", round(mutation_score_ignoring_survided_not_covered, 2)), sep='')
       cat(' & ', sprintf("%.2f", round(time_in_minutes, 2)), sep='')
     }
 
@@ -72,22 +70,22 @@ write_table_content <- function(df, column, sort_order=TRUE) {
   }
 }
 
-per_algorithm_tex_file <- paste(OUTPUT_DIR_PATH, 'summary_mutation_results_per_algorithm.tex', sep='')
+# at algorithm level
+
+per_algorithm_tex_file <- paste(OUTPUT_DIR_PATH, .Platform$file.sep, 'summary_mutation_results_per_algorithm.tex', sep='')
 unlink(per_algorithm_tex_file)
 sink(per_algorithm_tex_file, append=FALSE, split=TRUE)
 
 cat('\\begin{tabular}{@{\\extracolsep{\\fill}} l rrrrrrr} \\toprule\n', sep='')
 cat('\\multicolumn{1}{c}{Algorithm} & \\multicolumn{1}{c}{\\# Mutants} & \\multicolumn{1}{c}{\\# Killed} & \\multicolumn{1}{c}{\\# Survived} & \\multicolumn{1}{c}{\\# Incompetent} & \\multicolumn{1}{c}{\\# Timeout} & \\multicolumn{1}{c}{\\% Score} & \\multicolumn{1}{c}{Runtime (minutes)} \\\\\n', sep='')
 
-cat('\\midrule\n', sep='')
-cat('\\rowcolor{gray!25}\n', sep='')
-cat('\\multicolumn{8}{c}{\\textbf{\\textit{Traditional mutants}}} \\\\\n', sep='')
-write_table_content(df[df$'mutation_operator_type' == 'traditional', ], 'short_target')
-
-cat('\\midrule\n', sep='')
-cat('\\rowcolor{gray!25}\n', sep='')
-cat('\\multicolumn{8}{c}{\\textbf{\\textit{Quantum-based mutants}}} \\\\\n', sep='')
-write_table_content(df[df$'mutation_operator_type' == 'quantum', ], 'short_target')
+for (type in c(TRADITIONAL_MUTATION_OPERATOR_TYPE_STR, QUANTUM_MUTATION_OPERATOR_TYPE_STR)) {
+  cat('\\midrule\n', sep='')
+  cat('\\rowcolor{gray!25}\n', sep='')
+  cat('\\multicolumn{8}{c}{\\textbf{\\textit{', type, ' mutants}}} \\\\\n', sep='')
+  targets <- sort(unique(df$'short_target'), decreasing=TRUE)
+  write_table_content(df[df$'mutation_operator_type' == type, ], targets, 'short_target')
+}
 
 cat('\\bottomrule\n', sep='')
 cat('\\end{tabular}\n', sep='')
@@ -96,22 +94,20 @@ sink()
 
 # at operator level
 
-per_mutation_operator_tex_file <- paste(OUTPUT_DIR_PATH, 'summary_mutation_results_per_mutation_operator.tex', sep='')
+per_mutation_operator_tex_file <- paste(OUTPUT_DIR_PATH, .Platform$file.sep, 'summary_mutation_results_per_mutation_operator.tex', sep='')
 unlink(per_mutation_operator_tex_file)
 sink(per_mutation_operator_tex_file, append=FALSE, split=TRUE)
 
 cat('\\begin{tabular}{@{\\extracolsep{\\fill}} l rrrrr} \\toprule\n', sep='')
 cat('\\multicolumn{1}{c}{Operator} & \\multicolumn{1}{c}{\\# Mutants} & \\multicolumn{1}{c}{\\# Killed} & \\multicolumn{1}{c}{\\# Survived} & \\multicolumn{1}{c}{\\# Incompetent} & \\multicolumn{1}{c}{\\# Timeout} \\\\\n', sep='')
 
-cat('\\midrule\n', sep='')
-cat('\\rowcolor{gray!25}\n', sep='')
-cat('\\multicolumn{6}{c}{\\textbf{\\textit{Traditional mutants}}} \\\\\n', sep='')
-write_table_content(df[df$'mutation_operator_type' == 'traditional', ], 'operator', FALSE)
-
-cat('\\midrule\n', sep='')
-cat('\\rowcolor{gray!25}\n', sep='')
-cat('\\multicolumn{6}{c}{\\textbf{\\textit{Quantum-based mutants}}} \\\\\n', sep='')
-write_table_content(df[df$'mutation_operator_type' == 'quantum', ], 'operator', FALSE)
+for (type in c(TRADITIONAL_MUTATION_OPERATOR_TYPE_STR, QUANTUM_MUTATION_OPERATOR_TYPE_STR)) {
+  cat('\\midrule\n', sep='')
+  cat('\\rowcolor{gray!25}\n', sep='')
+  cat('\\multicolumn{6}{c}{\\textbf{\\textit{', type, ' mutants}}} \\\\\n', sep='')
+  operators <- sort(unique(df$'operator'[df$'mutation_operator_type' == type]), decreasing=FALSE)
+  write_table_content(df[df$'mutation_operator_type' == type, ], operators, 'operator')
+}
 
 cat('\\bottomrule\n', sep='')
 cat('\\end{tabular}\n', sep='')

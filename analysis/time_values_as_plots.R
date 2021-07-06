@@ -16,10 +16,9 @@ OUTPUT_FILE <- args[1]
 # Load data
 df <- load_exps_data()
 # Discard any row for which there is no mutation data
-df <- df[!is.na(df$'status'), ]
+df <- df[!is.na(df$'operator') & !is.na(df$'line_number'), ]
 # Discard 'incompetent' mutants
 df <- df[df$'status' != 'incompetent', ]
-
 # Compute relative times as some targets require more time to mutate, e.g.,
 # because they have many more place to mutate
 df$'time_to_generate_mutated_ast'  <- NA
@@ -39,22 +38,10 @@ for (operator in unique(df$'operator')) {
   }
 }
 # Select relevant columns
-df <- subset(df, select=c(target, operator, time_to_generate_mutated_ast, time_to_create_mutated_module))
+df <- subset(df, select=c(target, operator, mutation_operator_type, time_to_generate_mutated_ast, time_to_create_mutated_module))
 
 reshape_and_melt <- function(df, vars) {
   melt <- reshape2::melt(df, id.vars=vars)
-
-  # Sort operators
-  # TODO sort operators based on the order in ../qmutpy-support/mutation-operators.csv
-  melt$'operator' <- factor(melt$'operator', levels=c(
-    # Traditional mutants
-    'AOD', 'AOR', 'ASR', 'BCR', 'COD', 'COI', 'CRP', 'DDL', 'EHD', 'EXS', 'IHD', 'IOD', 'IOP', 'LCR', 'LOD', 'LOR', 'ROR', 'SCD', 'SCI', 'SIR',
-    # Quantum-based mutants
-    'QGD', 'QGI', 'QGR', 'QMD', 'QMI'
-  ))
-  melt$'type' <- NA # TODO get this info from ../qmutpy-support/mutation-operators.csv
-  melt$'type'[melt$'operator' %in% c('AOD', 'AOR', 'ASR', 'BCR', 'COD', 'COI', 'CRP', 'DDL', 'EHD', 'EXS', 'IHD', 'IOD', 'IOP', 'LCR', 'LOD', 'LOR', 'ROR', 'SCD', 'SCI', 'SIR')] <- 'Traditional'
-  melt$'type'[melt$'operator' %in% c('QGD', 'QGI', 'QGR', 'QMD', 'QMI')] <- 'Quantum-based'
 
   # Un-factorize
   melt$'variable' <- as.character(melt$'variable')
@@ -73,14 +60,14 @@ plot_label('Time values')
 
 # ------------------------------------------------------------------- as boxplot
 
-melt <- reshape_and_melt(df, c('operator', 'target'))
+melt <- reshape_and_melt(df, c('operator', 'mutation_operator_type', 'target'))
 
 # Label
 plot_label('Distribution as boxplot')
 # Basic box plot with colors by groups
 p <- ggplot(melt, aes(x=operator, y=value, fill=variable)) + geom_boxplot()
 # Facets
-p <- p + facet_grid( ~ type, scale='free', space='free')
+p <- p + facet_grid( ~ mutation_operator_type, scale='free', space='free')
 # Change x axis label
 p <- p + scale_x_discrete(name='Operator')
 # Change y axis label and control its scale
