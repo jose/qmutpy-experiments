@@ -16,6 +16,9 @@ OUTPUT_FILE <- args[1]
 
 # Load data
 df <- load_exps_data()
+# Exclude data points with no mutation operator information (i.e., lines of
+# code for each there was no mutant)
+df <- df[!is.na(df$'operator'), ]
 
 # Annotate each mutant with a unique ID to ease plotting
 df$'status_operator'    <- paste(df$'status', df$'operator', sep='-')
@@ -35,7 +38,7 @@ df$'status_operator_id' <- factor(df$'status_operator_id', levels=unique(str_sor
 # I am not aware of any R package or know how to develop some code to automatically
 # do it, here is a non-automated version.
 operators_grid <- list(
-  c(unique(df$'operator')),
+  unique(df$'operator'),
   c('CRP'),
   c('AOR'),
   c('SIR', 'SCI', 'BCR', 'EHD', 'ASR', 'COD', 'IOP', 'LOD'),
