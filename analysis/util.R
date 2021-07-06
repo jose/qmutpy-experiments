@@ -176,7 +176,7 @@ process_targets_mutation_data <- function(df) {
   # Fix divisions by zero
   dcast_df$'mutation_score_ignoring_survided_status'[is.nan(dcast_df$'mutation_score_ignoring_survided_status')]           <- 0
   dcast_df$'mutation_score_ignoring_survided_not_covered'[is.nan(dcast_df$'mutation_score_ignoring_survided_not_covered')] <- 0
-  #
+  # Data points with no mutant must have a 0 mutation score
   dcast_df$'mutation_score_ignoring_survided_status'[dcast_df$'num_mutants' == 0]      <- NA
   dcast_df$'mutation_score_ignoring_survided_not_covered'[dcast_df$'num_mutants' == 0] <- NA
   # Runtime check
