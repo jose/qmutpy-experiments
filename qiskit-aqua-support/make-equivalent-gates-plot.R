@@ -1,5 +1,18 @@
-# Required packages
-require('igraph')
+# This script generates two plots (heatmap and network) in a single PDF file
+# showing the relation between equivalent gates.
+#
+# Usage:
+#   Rscript summary_data_as_table.R <output dir path>
+#
+
+library('igraph') # install.packages('igraph')
+
+args = commandArgs(trailingOnly=TRUE)
+if (length(args) != 1) {
+  stop('USAGE: Rscript make-equivalent-gates-plot.R <output pdf file>')
+}
+
+OUTPUT_FILE_PATH <- args[1]
 
 # ------------------------------------------------------------------------- Util
 
@@ -25,9 +38,8 @@ plot_label <- function(text) {
 
 df <- read.csv('equivalent-gates.csv', header=TRUE, stringsAsFactors=FALSE)
 
-PDF_PATH <- "equivalent-gates.pdf"
-unlink(PDF_PATH)
-pdf(file=PDF_PATH, family="Helvetica", width=10, height=10)
+unlink(OUTPUT_FILE_PATH)
+pdf(file=OUTPUT_FILE_PATH, family="Helvetica", width=10, height=10)
 
 #
 # Heatmap
@@ -60,4 +72,4 @@ plot_label("network graph :: grid")
 plot(network, layout=layout.grid)
 
 dev.off()
-embed_fonts_in_a_pdf(PDF_PATH)
+embed_fonts_in_a_pdf(OUTPUT_FILE_PATH)
