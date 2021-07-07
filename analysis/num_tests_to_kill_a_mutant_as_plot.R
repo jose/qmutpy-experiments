@@ -39,7 +39,7 @@ p <- p + facet_grid(. ~ mutation_operator_type, scale='free', space='free')
 p <- p + scale_x_discrete(name='Operator')
 # Change y axis label and control its scale
 p <- p + scale_y_continuous(name='# Tests\nlog2 scale', trans='log2', labels=function(x) format(round(x, 2), scientific=FALSE))
-# Remove legend's title and move it to the top
+# Remove legend
 p <- p + theme(legend.title=element_blank(), legend.position='none')
 # Plot it
 print(p)
@@ -55,7 +55,7 @@ p <- p + facet_grid(mutation_operator_type ~ ., scale='free_x', space='free_x')
 p <- p + scale_x_discrete(name='Algorithm')
 # Change y axis label and control its scale
 p <- p + scale_y_continuous(name='# Tests\nlog2 scale', trans='log2', labels=function(x) format(round(x, 2), scientific=FALSE))
-# Remove legend's title and move it to the top
+# Remove legend and rotate x-axis 45 degrees
 p <- p + theme(legend.title=element_blank(), legend.position='none', axis.text.x=element_text(angle=45, hjust=1))
 # Plot it
 print(p)
