@@ -81,8 +81,9 @@ load_exps_data <- function(data_file='../data/qiskit-aqua-all-mutation-operators
   # time_to_run_tests_on_non_mutated_code,time_to_create_targets_ast,time_to_create_mutated_modules,time_to_run_tests_on_mutated_modules,time_to_generate_mutated_asts,time_to_mutate_module,total_time,
   # mutation_id,line_number,operator,status,killer,exception_traceback,number_of_tests_executed,time_to_run_tests_on_mutated_module
 
-  # Runtime check
+  # Runtime checks
   stopifnot(nrow(df[is.na(df$'operator'), ]) == 0)
+  stopifnot(min(df$'number_of_tests_executed', na.rm=TRUE) >= 0)
   # Replace empty cells with NA
   df[df == ''] <- NA
 
