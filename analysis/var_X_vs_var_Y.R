@@ -45,11 +45,11 @@ cov_mut_df$'short_target' <- factor(cov_mut_df$'short_target', levels=sort(uniqu
 
 # Remove and create pdf file
 unlink(OUTPUT_FILE)
-pdf(file=OUTPUT_FILE, family="Helvetica", width=10, height=8)
-plot_label("Var X vs Var Y \n Scatter Plots")
+pdf(file=OUTPUT_FILE, family='Helvetica', width=10, height=8)
+plot_label('Var X vs Var Y \n Scatter Plots')
 
 # Overall Coverage vs MutationScore
-plot_label("Overall Coverage vs Mutation Score")
+plot_label('Overall Coverage vs Mutation Score')
 # Basic scatter plot
 p <- ggplot(aggregate(. ~ short_target, cov_mut_df, FUN=mean), aes(x=line_coverage, y=mutation_score_ignoring_survided_status, color=short_target, shape=short_target)) + geom_point(size=3) + scale_size_area()
 # Legend
@@ -60,12 +60,12 @@ p <- p + theme(legend.title=element_blank(), legend.position='top') +
 # Add regression lines
 # p <- p + geom_smooth(method=lm)
 # Axis
-p <- p + scale_x_continuous(name="% Coverage")
-p <- p + scale_y_continuous(name="% Mutation Score")
+p <- p + scale_x_continuous(name='% Coverage')
+p <- p + scale_y_continuous(name='% Mutation Score')
 plot(p)
 
 # Coverage vs MutationScore
-plot_label("Coverage vs Mutation Score")
+plot_label('Coverage vs Mutation Score')
 # Basic scatter plot
 p <- ggplot(cov_mut_df, aes(x=line_coverage, y=mutation_score_ignoring_survided_status, color=short_target, shape=short_target)) + geom_point(size=2) + scale_size_area()
 # Legend
@@ -76,8 +76,8 @@ p <- p + theme(legend.title=element_blank(), legend.position='top') +
 # Facets
 p <- p + facet_wrap(~ operator, ncol=4)
 # Axis
-p <- p + scale_x_continuous(name="% Coverage")
-p <- p + scale_y_continuous(name="% Mutation Score")
+p <- p + scale_x_continuous(name='% Coverage')
+p <- p + scale_y_continuous(name='% Mutation Score')
 plot(p)
 
 dev.off()

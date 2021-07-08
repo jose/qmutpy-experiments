@@ -26,8 +26,8 @@ df <- subset(df, select=c(
 
 # Remove and create pdf file
 unlink(OUTPUT_FILE)
-pdf(file=OUTPUT_FILE, family="Helvetica", width=15, height=5)
-plot_label("Number of tests required to kill each mutant")
+pdf(file=OUTPUT_FILE, family='Helvetica', width=15, height=5)
+plot_label('Number of tests required to kill each mutant')
 
 # Label
 plot_label('Distribution as boxplot\nper mutation operator')

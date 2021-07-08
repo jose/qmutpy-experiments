@@ -21,8 +21,8 @@ df <- process_targets_mutation_data(df)
 # --------------------------------------------------------------- summarize data
 
 write_table_content <- function(df, entries, column) {
-  agg_sum  <- aggregate(as.formula(paste("cbind(num_mutants, killed, survived_covered, survived_not_covered, incompetent, timeout, total_time) ~ ", column, sep='')), df, FUN=sum)
-  agg_mean <- aggregate(as.formula(paste("cbind(mutation_score_ignoring_survided_status, mutation_score_ignoring_survided_not_covered, num_lines_mutated, num_mutants_per_line_number) ~ ", column, sep='')), df, FUN=mean)
+  agg_sum  <- aggregate(as.formula(paste('cbind(num_mutants, killed, survived_covered, survived_not_covered, incompetent, timeout, total_time) ~ ', column, sep='')), df, FUN=sum)
+  agg_mean <- aggregate(as.formula(paste('cbind(mutation_score_ignoring_survided_status, mutation_score_ignoring_survided_not_covered, num_lines_mutated, num_mutants_per_line_number) ~ ', column, sep='')), df, FUN=mean)
   mutation_df <- merge(agg_sum, agg_mean, by=column, all=TRUE)
 
   for (entry in entries) {

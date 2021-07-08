@@ -219,7 +219,7 @@ process_targets_coverage_data <- function(df) {
   # Count number of unique lines per target
   agg_count <- aggregate(line_number ~ short_target, agg_df, FUN=length)
   # Rename 'line_number' -> 'num_lines'
-  names(agg_count)[names(agg_count) == "line_number"] <- "num_lines"
+  names(agg_count)[names(agg_count) == 'line_number'] <- 'num_lines'
   # short_target,num_lines
   # simon,89
 
