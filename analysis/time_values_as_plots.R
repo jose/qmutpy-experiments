@@ -65,7 +65,7 @@ melt <- reshape_and_melt(df, c('operator', 'mutation_operator_type', 'target'))
 # Label
 plot_label('Distribution as boxplot')
 # Basic box plot with colors by groups
-p <- ggplot(melt, aes(x=operator, y=value, fill=variable)) + geom_boxplot()
+p <- ggplot(melt, aes(x=operator, y=value, fill=variable)) + geom_violin()
 # Facets
 p <- p + facet_grid( ~ mutation_operator_type, scale='free', space='free')
 # Change x axis label
