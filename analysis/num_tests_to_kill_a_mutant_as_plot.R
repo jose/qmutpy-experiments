@@ -42,6 +42,24 @@ p <- p + scale_y_continuous(name='# Tests\nlog2 scale', trans='log2', labels=fun
 # Add mean and median points
 p <- p + stat_summary(fun=median, geom='point', shape=16, size=2, fill='black', color='black')
 p <- p + stat_summary(fun=mean, geom='point', shape=8, size=2, fill='black', color='black')
+print(mean(df$'number_of_tests_executed'[df$'mutation_operator_type' == TRADITIONAL_MUTATION_OPERATOR_TYPE_STR]))
+print(mean(df$'number_of_tests_executed'[df$'mutation_operator_type' == QUANTUM_MUTATION_OPERATOR_TYPE_STR]))
+# Display overall avarege as a horizontal line.  To achieve that, and because
+# there are different facets, a data.frame must be create with positions of those
+# lines.
+hlines <- data.frame()
+for (mutation_operator_type in unique(df$'mutation_operator_type')) {
+  mask <- df$'mutation_operator_type' == mutation_operator_type
+  y <- NA
+  if (nrow(df[mask, ]) > 0) {
+    y <- mean(df$'number_of_tests_executed'[mask])
+  }
+  hlines <- rbind(hlines, data.frame(mutation_operator_type=mutation_operator_type, y=y))
+}
+hlines$'mutation_operator_type' <- factor(hlines$'mutation_operator_type', levels=c(TRADITIONAL_MUTATION_OPERATOR_TYPE_STR, QUANTUM_MUTATION_OPERATOR_TYPE_STR))
+p <- p + geom_hline(data=hlines, mapping=aes(yintercept=y), color='red')
+# Label horizontal line
+p <- p + geom_text(data=aggregate(. ~ mutation_operator_type, hlines, FUN=function(y) round(mean(y), 0)), aes(x=0.60, y=y, label=y), vjust=-0.50, color='red')
 # Remove legend
 p <- p + theme(legend.title=element_blank(), legend.position='none')
 # Plot it
