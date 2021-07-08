@@ -42,8 +42,6 @@ p <- p + scale_y_continuous(name='# Tests\nlog2 scale', trans='log2', labels=fun
 # Add mean and median points
 p <- p + stat_summary(fun=median, geom='point', shape=16, size=2, fill='black', color='black')
 p <- p + stat_summary(fun=mean, geom='point', shape=8, size=2, fill='black', color='black')
-print(mean(df$'number_of_tests_executed'[df$'mutation_operator_type' == TRADITIONAL_MUTATION_OPERATOR_TYPE_STR]))
-print(mean(df$'number_of_tests_executed'[df$'mutation_operator_type' == QUANTUM_MUTATION_OPERATOR_TYPE_STR]))
 # Display overall avarege as a horizontal line.  To achieve that, and because
 # there are different facets, a data.frame must be create with positions of those
 # lines.
