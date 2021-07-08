@@ -38,7 +38,7 @@ p <- p + facet_grid(. ~ mutation_operator_type, scale='free', space='free')
 # Change x axis label
 p <- p + scale_x_discrete(name='Operator')
 # Change y axis label and control its scale
-p <- p + scale_y_continuous(name='# Tests\nlog2 scale', trans='log2', labels=function(x) format(round(x, 2), scientific=FALSE))
+p <- p + scale_y_continuous(name='# Tests\n(log2 scale)', trans='log2', labels=function(x) format(round(x, 2), scientific=FALSE))
 # Add mean and median points
 p <- p + stat_summary(fun=median, geom='point', shape=16, size=2, fill='black', color='black')
 p <- p + stat_summary(fun=mean, geom='point', shape=8, size=2, fill='black', color='black')

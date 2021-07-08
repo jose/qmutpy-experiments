@@ -71,7 +71,7 @@ p <- p + facet_grid( ~ mutation_operator_type, scale='free', space='free')
 # Change x axis label
 p <- p + scale_x_discrete(name='Operator')
 # Change y axis label and control its scale
-p <- p + scale_y_continuous(name='Time (seconds)\nlog scale', trans='log', labels=function(x) format(round(x, 2), scientific=FALSE))
+p <- p + scale_y_continuous(name='Time (seconds)\n(log scale)', trans='log', labels=function(x) format(round(x, 2), scientific=FALSE))
 # Remove legend's title and move it to the top
 p <- p + theme(legend.title=element_blank(), legend.position='top')
 # Plot it
