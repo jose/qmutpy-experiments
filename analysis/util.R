@@ -191,8 +191,6 @@ process_targets_mutation_data <- function(df) {
   # Runtime check
   stopifnot(max(dcast_df$'mutation_score_ignoring_survided_status', na.rm=TRUE) <= 100.0)
   stopifnot(max(dcast_df$'mutation_score_ignoring_survided_not_covered', na.rm=TRUE) <= 100.0)
-  # Recompute total_time
-  dcast_df$'total_time' <- dcast_df$'total_time' * dcast_df$'num_mutants'
 
   # Merge mutation data with distribution of mutated lines
   n <- nrow(dcast_df)
