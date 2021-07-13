@@ -54,7 +54,7 @@ for (mutation_operator_type in unique(df$'mutation_operator_type')) {
   }
   hlines <- rbind(hlines, data.frame(mutation_operator_type=mutation_operator_type, y=y))
 }
-hlines$'mutation_operator_type' <- factor(hlines$'mutation_operator_type', levels=c(TRADITIONAL_MUTATION_OPERATOR_TYPE_STR, QUANTUM_MUTATION_OPERATOR_TYPE_STR))
+hlines$'mutation_operator_type' <- factor(hlines$'mutation_operator_type', levels=c(CLASSIC_MUTATION_OPERATOR_TYPE_STR, QUANTUM_MUTATION_OPERATOR_TYPE_STR))
 p <- p + geom_hline(data=hlines, mapping=aes(yintercept=y), color='red')
 # Label horizontal line
 p <- p + geom_text(data=aggregate(. ~ mutation_operator_type, hlines, FUN=function(y) round(mean(y), 0)), aes(x=0.60, y=y, label=y), vjust=-0.50, color='red')

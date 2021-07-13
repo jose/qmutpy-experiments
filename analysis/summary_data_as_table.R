@@ -84,7 +84,7 @@ sink(per_algorithm_tex_file, append=FALSE, split=TRUE)
 cat('\\begin{tabular}{@{\\extracolsep{\\fill}} l rrrrrrrr} \\toprule\n', sep='')
 cat('\\multicolumn{1}{c}{Algorithm} & \\multicolumn{1}{c}{\\# Mutants} & \\multicolumn{1}{c}{\\# Mutated LOC} & \\multicolumn{1}{c}{\\# Killed} & \\multicolumn{1}{c}{\\# Survived} & \\multicolumn{1}{c}{\\# Incompetent} & \\multicolumn{1}{c}{\\# Timeout} & \\multicolumn{1}{c}{\\% Score} & \\multicolumn{1}{c}{Runtime} \\\\\n', sep='')
 
-for (type in c(TRADITIONAL_MUTATION_OPERATOR_TYPE_STR, QUANTUM_MUTATION_OPERATOR_TYPE_STR)) {
+for (type in c(CLASSIC_MUTATION_OPERATOR_TYPE_STR, QUANTUM_MUTATION_OPERATOR_TYPE_STR)) {
   cat('\\midrule\n', sep='')
   cat('\\rowcolor{gray!25}\n', sep='')
   cat('\\multicolumn{9}{c}{\\textbf{\\textit{', type, ' mutants}}} \\\\\n', sep='')
@@ -106,7 +106,7 @@ sink(per_mutation_operator_tex_file, append=FALSE, split=TRUE)
 cat('\\begin{tabular}{@{\\extracolsep{\\fill}} l rrrrr} \\toprule\n', sep='')
 cat('\\multicolumn{1}{c}{Operator} & \\multicolumn{1}{c}{\\# Mutants} & \\multicolumn{1}{c}{\\# Killed} & \\multicolumn{1}{c}{\\# Survived} & \\multicolumn{1}{c}{\\# Incompetent} & \\multicolumn{1}{c}{\\# Timeout} \\\\\n', sep='')
 
-for (type in c(TRADITIONAL_MUTATION_OPERATOR_TYPE_STR, QUANTUM_MUTATION_OPERATOR_TYPE_STR)) {
+for (type in c(CLASSIC_MUTATION_OPERATOR_TYPE_STR, QUANTUM_MUTATION_OPERATOR_TYPE_STR)) {
   cat('\\midrule\n', sep='')
   cat('\\rowcolor{gray!25}\n', sep='')
   cat('\\multicolumn{6}{c}{\\textbf{\\textit{', type, ' mutants}}} \\\\\n', sep='')

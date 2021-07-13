@@ -71,8 +71,8 @@ set_relative_widths_to_all_facet_columns <- function(plot) {
 
 # ---------------------------------------------------------------- Study related
 
-TRADITIONAL_MUTATION_OPERATOR_TYPE_STR <- 'Traditional'
-QUANTUM_MUTATION_OPERATOR_TYPE_STR     <- 'Quantum-based'
+CLASSIC_MUTATION_OPERATOR_TYPE_STR <- 'Classic'
+QUANTUM_MUTATION_OPERATOR_TYPE_STR <- 'Quantum-based'
 
 load_exps_data <- function(data_file='../data/qiskit-aqua-all-mutation-operators.csv') {
   # Load data
@@ -122,17 +122,17 @@ load_exps_data <- function(data_file='../data/qiskit-aqua-all-mutation-operators
   # Rename column 'mutation_operator_id' to ease merge
   names(mutation_operators)[names(mutation_operators) == 'mutation_operator_id'] <- 'operator'
   # Pretty print mutants' type
-  mutation_operators$'mutation_operator_type'[mutation_operators$'mutation_operator_type' == 'traditional'] <- TRADITIONAL_MUTATION_OPERATOR_TYPE_STR
-  mutation_operators$'mutation_operator_type'[mutation_operators$'mutation_operator_type' == 'quantum']     <- QUANTUM_MUTATION_OPERATOR_TYPE_STR
+  mutation_operators$'mutation_operator_type'[mutation_operators$'mutation_operator_type' == 'classic'] <- CLASSIC_MUTATION_OPERATOR_TYPE_STR
+  mutation_operators$'mutation_operator_type'[mutation_operators$'mutation_operator_type' == 'quantum'] <- QUANTUM_MUTATION_OPERATOR_TYPE_STR
   # Select relevant columns
   mutation_operators <- subset(mutation_operators, select=c(operator, mutation_operator_type))
   # Augment data.frame
   df <- merge(df, mutation_operators, by='operator', all=TRUE)
   # Set operator type's factor
-  df$'mutation_operator_type' <- factor(df$'mutation_operator_type', levels=c(TRADITIONAL_MUTATION_OPERATOR_TYPE_STR, QUANTUM_MUTATION_OPERATOR_TYPE_STR))
+  df$'mutation_operator_type' <- factor(df$'mutation_operator_type', levels=c(CLASSIC_MUTATION_OPERATOR_TYPE_STR, QUANTUM_MUTATION_OPERATOR_TYPE_STR))
   # Set and sort operator's factors
   df$'operator' <- factor(df$'operator', levels=c(
-    # First, traditional mutation operators
+    # First, classic mutation operators
     'AOD', 'AOR', 'ASR', 'BCR', 'COD', 'COI', 'CRP', 'DDL', 'EHD', 'EXS', 'IHD', 'IOD', 'IOP', 'LCR', 'LOD', 'LOR', 'ROR', 'SCD', 'SCI', 'SIR',
     # Then, quantum-based mutation operators
     'QGD', 'QGI', 'QGR', 'QMD', 'QMI'
