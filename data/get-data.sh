@@ -55,7 +55,9 @@ for exps_dir in $(echo "$EXPS_DIRS" | tr ',' '\n'); do
 
   find "$exps_dir" -type f -name "*.yaml" | while read yaml_file; do
     csv_file=$(echo "$yaml_file" | sed 's|.yaml$|.csv|')
+    rm -f "$csv_file"
     python "$SCRIPT_DIR/yaml2csv.py" "$yaml_file" "$csv_file" || die "[ERROR] Failed to convert $yaml_file into CSV!"
+    [ -s "$csv_file" ] || die "[ERROR] $csv_file does not exist or it is empty!"
 
     if [ ! -f "$OUTPUT_FILE" ]; then
       cat "$csv_file" > "$OUTPUT_FILE" || die "[ERROR] Failed to create '$OUTPUT_FILE'!"
