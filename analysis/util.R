@@ -83,6 +83,7 @@ load_exps_data <- function(data_file='../data/qiskit-aqua-all-mutation-operators
 
   # Runtime checks
   stopifnot(nrow(df[is.na(df$'operator'), ]) == 0)
+  df$'number_of_tests_executed' <- abs(df$'number_of_tests_executed')
   stopifnot(min(df$'number_of_tests_executed', na.rm=TRUE) >= 0)
   # Replace empty cells with NA
   df[df == ''] <- NA
