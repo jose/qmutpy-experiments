@@ -43,6 +43,14 @@ for (short_target in unique(df$'short_target')) {
       ' \\\\\n', sep='')
 }
 
+# Average
+cat('\\midrule\\textit{Average}', sep='')
+cat(' & ', sprintf("%.2f", round(mean(df$'num_lines'), 2)),
+    ' & ', sprintf("%.2f", round(mean(df$'number_of_tests'), 2)),
+    ' & ', sprintf("%.2f", round(mean(df$'time_to_run_tests_on_non_mutated_code'), 2)),
+    ' & ', sprintf("%.2f", round(mean(df$'line_coverage'), 2)),
+    ' \\\\\n', sep='')
+
 cat('\\bottomrule\n', sep='')
 cat('\\end{tabular}\n', sep='')
 

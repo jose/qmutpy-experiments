@@ -25,6 +25,8 @@ write_table_content <- function(df, entries, column) {
   agg_mean <- aggregate(as.formula(paste('cbind(mutation_score_ignoring_survided_status, mutation_score_ignoring_survided_not_covered, num_lines_mutated, num_mutants_per_line_number) ~ ', column, sep='')), df, FUN=mean)
   mutation_df <- merge(agg_sum, agg_mean, by=column, all=TRUE)
 
+  table_df <- data.frame()
+
   for (entry in entries) {
     mask <- mutation_df[[column]] == entry
     cat(replace_string(entry, '_', '\\\\_'), sep='')
@@ -62,6 +64,10 @@ write_table_content <- function(df, entries, column) {
     cat(' & ', num_mutants_incompetent, sep='')
     cat(' & ', num_mutants_timeout, sep='')
 
+    time_in_minutes                              <- NA
+    mutation_score_ignoring_survided_status      <- NA
+    mutation_score_ignoring_survided_not_covered <- NA
+
     if (column == 'short_target') {
       time_in_seconds                              <- mutation_df$'total_time'[mask]
       time_in_minutes                              <- time_in_seconds / 60.0
@@ -71,8 +77,37 @@ write_table_content <- function(df, entries, column) {
       cat(' & ', sprintf("%.2f", round(time_in_minutes, 2)), sep='')
     }
 
+    table_df <- rbind(table_df, data.frame(
+      num_mutants=num_mutants,
+      num_lines_mutated=mutation_df$'num_lines_mutated'[mask],
+      num_mutants_per_line_number=mutation_df$'num_mutants_per_line_number'[mask],
+      num_mutants_killed=num_mutants_killed,
+      num_mutants_survived_covered=num_mutants_survived_covered, num_mutants_survived_not_covered=num_mutants_survived_not_covered,
+      num_mutants_incompetent=num_mutants_incompetent,
+      num_mutants_timeout=num_mutants_timeout,
+      time_in_minutes=time_in_minutes,
+      mutation_score_ignoring_survided_status=mutation_score_ignoring_survided_status,
+      mutation_score_ignoring_survided_not_covered=mutation_score_ignoring_survided_not_covered
+    ))
+
     cat(' \\\\\n', sep='')
   }
+
+  # Average
+  cat('\\midrule\\textit{Average}', sep='')
+  cat(' & ', sprintf("%.2f", round(mean(table_df$'num_mutants'), 2)), sep='')
+  if (column == 'short_target') {
+    cat(' & ', sprintf("%.2f", round(mean(table_df$'num_lines_mutated'), 2)), ' (', sprintf("%.2f", round(mean(table_df$'num_mutants_per_line_number'), 2)), ')', sep='')
+  }
+  cat(' & ', sprintf("%.2f", round(mean(table_df$'num_mutants_killed'), 2)), sep='')
+  cat(' & ', sprintf("%.2f", round(mean(table_df$'num_mutants_survived_covered'), 2)), ' / ', sprintf("%.2f", round(mean(table_df$'num_mutants_survived_not_covered'), 2)), sep='')
+  cat(' & ', sprintf("%.2f", round(mean(table_df$'num_mutants_incompetent'), 2)), sep='')
+  cat(' & ', sprintf("%.2f", round(mean(table_df$'num_mutants_timeout'), 2)), sep='')
+  if (column == 'short_target') {
+    cat(' & ', sprintf("%.2f", round(mean(table_df$'mutation_score_ignoring_survided_status'), 2)), ' / ', sprintf("%.2f", round(mean(table_df$'mutation_score_ignoring_survided_not_covered'), 2)), sep='')
+    cat(' & ', sprintf("%.2f", round(mean(table_df$'time_in_minutes'), 2)), sep='')
+  }
+  cat(' \\\\\n', sep='')
 }
 
 # at algorithm level
