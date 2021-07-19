@@ -1,4 +1,4 @@
-# This script plots the number of tests required to kill each mutant as boxplots.
+# This script plots the number of tests required to kill each mutant as violinplots.
 #
 # Usage:
 #   Rscript num_tests_to_kill_a_mutant_as_plot.R <output pdf file>
@@ -30,7 +30,7 @@ pdf(file=OUTPUT_FILE, family='Helvetica', width=15, height=5)
 plot_label('Number of tests required to kill each mutant')
 
 # Label
-plot_label('Distribution as boxplot\nper mutation operator')
+plot_label('Distribution as violinplot\nper mutation operator')
 # Basic box plot with colors by groups
 p <- ggplot(df, aes(x=operator, y=number_of_tests_executed)) + geom_violin(fill='#A4A4A4')
 # Facets
@@ -42,6 +42,10 @@ p <- p + scale_y_continuous(name='# Tests\n(log2 scale)', trans='log2', labels=f
 # Add mean and median points
 p <- p + stat_summary(fun=median, geom='point', shape=16, size=2, fill='black', color='black')
 p <- p + stat_summary(fun=mean, geom='point', shape=8, size=2, fill='black', color='black')
+# Add labels to mean and median points, and max value
+p <- p + stat_summary(fun.data=function(x) data.frame(y=median(x), label=round(median(x)+0.5,0)), geom='text', hjust=-1)
+p <- p + stat_summary(fun.data=function(x) data.frame(y=mean(x), label=round(mean(x)+0.5,0)), geom='text', hjust=2)
+p <- p + stat_summary(fun=max, geom='text', label=aggregate(number_of_tests_executed ~ operator, df, FUN=max)$'number_of_tests_executed', vjust=-0.5)
 # Display overall avarege as a horizontal line.  To achieve that, and because
 # there are different facets, a data.frame must be create with positions of those
 # lines.
@@ -64,7 +68,7 @@ p <- p + theme(legend.title=element_blank(), legend.position='none')
 print(p)
 
 # Label
-plot_label('Distribution as boxplot\nper target')
+plot_label('Distribution as violinplot\nper target')
 # Basic box plot with colors by groups
 p <- ggplot(df, aes(x=short_target, y=number_of_tests_executed)) + geom_violin(fill='#A4A4A4')
 # Facets
