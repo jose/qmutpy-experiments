@@ -81,6 +81,8 @@ p <- p + theme(
   axis.title.x=element_text(size=18, hjust=0.5, vjust=0.0),
   axis.title.y=element_text(size=18, hjust=0.5, vjust=0.5)
 )
+# Add labels over bars
+p <- p + stat_count(geom='text', colour='black', size=6, aes(label=..count..), position=position_dodge(width=0.9), hjust=-0.10)
 # Make it horizontal
 p <- p + coord_flip()
 # Plot it
@@ -96,6 +98,8 @@ p <- p + facet_grid( ~ mutation_operator_type, scale='free', space='free')
 p <- p + scale_x_discrete(name='Operator')
 # Change y axis label
 p <- p + scale_y_continuous(name='# Occurrences\n(log2 scale)', trans='log2', labels=function(x) format(round(x, 2), scientific=FALSE))
+# Add labels over bars
+p <- p + stat_count(geom='text', colour='black', size=3.5, aes(label=..count..), position=position_dodge(width=0.9), vjust=-0.50)
 # Remove legend's title and move it to the top
 p <- p + theme(legend.title=element_blank(), legend.position='top')
 # Plot it
