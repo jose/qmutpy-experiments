@@ -24,7 +24,6 @@ df <- subset(df, select=c(
   short_target, operator, mutation_operator_type, exception_traceback
 ))
 
-# TODO
 df$'killer_type' <- NA
 for (error in c(
   # Quantum-based
@@ -32,7 +31,6 @@ for (error in c(
   'QiskitOptimizationError: ',
   'QiskitError: ',
   'CircuitError: ',
-  'MissingOptionalLibraryError: ',
   # Python-based
   'NotImplementedError',
   'IndexError: ',
