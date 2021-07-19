@@ -1,4 +1,4 @@
-# This script plots time values as boxplots.
+# This script plots time values as barplots.
 #
 # Usage:
 #   Rscript time_values_as_plots.R <output pdf file>
@@ -43,8 +43,11 @@ for (error in c(
   'RuntimeError: ',
   'NameError: ',
   'KeyError: ',
-  # NumPy
-  'AxisError: '
+  # Third-party
+  'CplexSolverError: ',
+  'DQCPError: ',
+  'AxisError: ',
+  'LinAlgError: '
 )) {
   df$'killer_type'[grep(error, df$'exception_traceback')] <- 'Error'
 }
@@ -61,7 +64,7 @@ unlink(OUTPUT_FILE)
 pdf(file=OUTPUT_FILE, family='Helvetica', width=15, height=5)
 plot_label('Killed by')
 
-# ------------------------------------------------------------------- as boxplot
+# ------------------------------------------------------------------- as barplot
 
 # Label
 plot_label('By type')
