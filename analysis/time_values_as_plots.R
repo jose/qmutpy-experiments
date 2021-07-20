@@ -76,8 +76,7 @@ p <- p + coord_trans(y='log10', expand=TRUE) + scale_y_continuous(name='Time (se
 max_df <- aggregate(value ~ operator + variable + mutation_operator_type, melt, FUN=max)
 max_df <- max_df[max_df$'variable' == 'Generate mutant', ]
 max_df$'value' <- round(max_df$'value',2)
-# max_df$'value'[max_df$'value' == 0.00] <- 0.01 # TODO
-p <- p + geom_text(mapping=aes(x=operator, y=value, label=value), data=max_df, position=position_dodge(width=0.9), vjust=-0.50)
+p <- p + geom_text(mapping=aes(x=operator, y=value, label=value), data=max_df, position=position_dodge(width=0.9), vjust=-0.50, color='purple')
 # Add median and mean per mutation operator
 p <- p + stat_summary(fun=median, geom='point', shape=16, size=2, fill='darkorange', color='darkorange')
 p <- p + stat_summary(fun=mean, geom='point', shape=8, size=2, fill='darkgreen', color='darkgreen')
