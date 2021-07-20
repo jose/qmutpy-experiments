@@ -51,12 +51,17 @@ p <- p + stat_summary(fun=max, geom='text', label=aggregate(number_of_tests_exec
 # lines.
 hlines <- data.frame()
 for (mutation_operator_type in unique(df$'mutation_operator_type')) {
-  mask <- df$'mutation_operator_type' == mutation_operator_type
-  y <- NA
-  if (nrow(df[mask, ]) > 0) {
-    y <- mean(df$'number_of_tests_executed'[mask])
+  mutation_operators <- unique(df$'operator'[df$'mutation_operator_type' == mutation_operator_type])
+  avgs <- c()
+  for (mutation_operator in mutation_operators) {
+    mask <- df$'mutation_operator_type' == mutation_operator_type & df$'operator' == mutation_operator
+    if (nrow(df[mask, ]) > 0) {
+      avgs <- c(avgs, mean(df$'number_of_tests_executed'[mask]))
+    } else {
+      avgs <- c(avgs, 0)
+    }
   }
-  hlines <- rbind(hlines, data.frame(mutation_operator_type=mutation_operator_type, y=y))
+  hlines <- rbind(hlines, data.frame(mutation_operator_type=mutation_operator_type, y=mean(avgs)))
 }
 hlines$'mutation_operator_type' <- factor(hlines$'mutation_operator_type', levels=c(CLASSIC_MUTATION_OPERATOR_TYPE_STR, QUANTUM_MUTATION_OPERATOR_TYPE_STR))
 p <- p + geom_hline(data=hlines, mapping=aes(yintercept=y), color='red')
@@ -87,7 +92,24 @@ p <- p + stat_summary(fun=mean, geom='point', shape=8, size=2, fill='darkgreen',
 p <- p + stat_summary(fun.data=function(x) data.frame(y=median(x), label=round(median(x),0)), geom='text', hjust=2, color='darkorange')
 p <- p + stat_summary(fun.data=function(x) data.frame(y=mean(x), label=round(mean(x),0)), geom='text', hjust=-1, color='darkgreen')
 p <- p + stat_summary(fun=max, geom='text', label=aggregate(number_of_tests_executed ~ short_target + mutation_operator_type, df, FUN=max)$'number_of_tests_executed', vjust=-0.5, color='purple')
-# Display overall avarege as a horizontal line
+# Display overall avarege as a horizontal line.  To achieve that, and because
+# there are different facets, a data.frame must be create with positions of those
+# lines.
+hlines <- data.frame()
+for (mutation_operator_type in unique(df$'mutation_operator_type')) { # TODO adapt the following code to consider programs with 0 killed mutants when computing the average
+  short_targets <- unique(df$'short_target'[df$'mutation_operator_type' == mutation_operator_type])
+  avgs <- c()
+  for (short_target in short_targets) {
+    mask <- df$'mutation_operator_type' == mutation_operator_type & df$'short_target' == short_target
+    if (nrow(df[mask, ]) > 0) {
+      avgs <- c(avgs, mean(df$'number_of_tests_executed'[mask]))
+    } else {
+      avgs <- c(avgs, 0)
+    }
+  }
+  hlines <- rbind(hlines, data.frame(mutation_operator_type=mutation_operator_type, y=mean(avgs)))
+}
+hlines$'mutation_operator_type' <- factor(hlines$'mutation_operator_type', levels=c(CLASSIC_MUTATION_OPERATOR_TYPE_STR, QUANTUM_MUTATION_OPERATOR_TYPE_STR))
 p <- p + geom_hline(data=hlines, mapping=aes(yintercept=y), color='red')
 # Label horizontal line
 p <- p + geom_text(data=aggregate(. ~ mutation_operator_type, hlines, FUN=function(y) round(mean(y), 0)), aes(x=0.60, y=y, label=y), vjust=-0.50, color='red')
