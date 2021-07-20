@@ -72,7 +72,7 @@ set_relative_widths_to_all_facet_columns <- function(plot) {
 # ---------------------------------------------------------------- Study related
 
 CLASSIC_MUTATION_OPERATOR_TYPE_STR <- 'Classic'
-QUANTUM_MUTATION_OPERATOR_TYPE_STR <- 'Quantum-based'
+QUANTUM_MUTATION_OPERATOR_TYPE_STR <- 'Quantum-oriented'
 
 load_exps_data <- function(data_file='../data/qiskit-aqua-all-mutation-operators.csv') {
   # Load data
@@ -135,7 +135,7 @@ load_exps_data <- function(data_file='../data/qiskit-aqua-all-mutation-operators
   df$'operator' <- factor(df$'operator', levels=c(
     # First, classic mutation operators
     'AOD', 'AOR', 'ASR', 'BCR', 'COD', 'COI', 'CRP', 'DDL', 'EHD', 'EXS', 'IHD', 'IOD', 'IOP', 'LCR', 'LOD', 'LOR', 'ROR', 'SCD', 'SCI', 'SIR',
-    # Then, quantum-based mutation operators
+    # Then, quantum-oriented mutation operators
     'QGD', 'QGI', 'QGR', 'QMD', 'QMI'
   ))
 
