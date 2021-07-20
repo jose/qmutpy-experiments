@@ -77,12 +77,22 @@ p <- p + facet_grid(mutation_operator_type ~ ., scale='free_x', space='free_x')
 # Change x axis label
 p <- p + scale_x_discrete(name='Algorithm')
 # Change y axis label and control its scale
-p <- p + coord_trans(y='log10', expand=TRUE) + scale_y_continuous(name='# Tests')
+p <- p + coord_trans(y='log10', expand=TRUE) + scale_y_continuous(name='# Tests', breaks=c(1, 5, 10, 25, 50, 100, 250, 500))
+# Ensure max y value is included
+p <- p + expand_limits(y=c(1, max(df$'number_of_tests_executed')+ (max(df$'number_of_tests_executed')/2)))
 # Add mean and median points
-p <- p + stat_summary(fun=median, geom='point', shape=16, size=2, fill='black', color='black')
-p <- p + stat_summary(fun=mean, geom='point', shape=8, size=2, fill='black', color='black')
+p <- p + stat_summary(fun=median, geom='point', shape=16, size=2, fill='darkorange', color='darkorange')
+p <- p + stat_summary(fun=mean, geom='point', shape=8, size=2, fill='darkgreen', color='darkgreen')
+# Add labels to mean and median points, and max value
+p <- p + stat_summary(fun.data=function(x) data.frame(y=median(x), label=round(median(x),0)), geom='text', hjust=2, color='darkorange')
+p <- p + stat_summary(fun.data=function(x) data.frame(y=mean(x), label=round(mean(x),0)), geom='text', hjust=-1, color='darkgreen')
+p <- p + stat_summary(fun=max, geom='text', label=aggregate(number_of_tests_executed ~ short_target + mutation_operator_type, df, FUN=max)$'number_of_tests_executed', vjust=-0.5, color='purple')
+# Display overall avarege as a horizontal line
+p <- p + geom_hline(data=hlines, mapping=aes(yintercept=y), color='red')
+# Label horizontal line
+p <- p + geom_text(data=aggregate(. ~ mutation_operator_type, hlines, FUN=function(y) round(mean(y), 0)), aes(x=0.60, y=y, label=y), vjust=-0.50, color='red')
 # Remove legend and rotate x-axis 45 degrees
-p <- p + theme(legend.title=element_blank(), legend.position='none', axis.text.x=element_text(angle=45, hjust=1))
+p <- p + theme(legend.title=element_blank(), legend.position='none', axis.text.x=element_text(angle=30, hjust=1))
 # Plot it
 print(p)
 
