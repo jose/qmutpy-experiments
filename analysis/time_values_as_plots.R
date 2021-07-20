@@ -72,6 +72,10 @@ p <- p + facet_grid( ~ mutation_operator_type, scale='free', space='free')
 p <- p + scale_x_discrete(name='Operator')
 # Change y axis label and control its scale
 p <- p + scale_y_continuous(name='Time (seconds)\n(log scale)', trans='log', labels=function(x) format(round(x, 2), scientific=FALSE))
+# Add max values to each bar
+max_df <- aggregate(value ~ operator + variable + mutation_operator_type, melt, FUN=max)
+max_df$'value' <- round(max_df$'value',2)
+p <- p + geom_text(mapping=aes(x=operator, y=value, label=value), data=max_df, position=position_dodge(width=0.9), vjust=-0.50)
 # Remove legend's title and move it to the top
 p <- p + theme(legend.title=element_blank(), legend.position='top')
 # Plot it
