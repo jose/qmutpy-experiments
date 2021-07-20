@@ -38,14 +38,14 @@ p <- p + facet_grid(. ~ mutation_operator_type, scale='free', space='free')
 # Change x axis label
 p <- p + scale_x_discrete(name='Operator')
 # Change y axis label and control its scale
-p <- p + scale_y_continuous(name='# Tests\n(log2 scale)', trans='log2', labels=function(x) format(round(x, 2), scientific=FALSE))
+p <- p + coord_trans(y='log10', expand=TRUE) + scale_y_continuous(name='# Tests', breaks=c(1, 2, 3, 4, 5, 10, 25, 50, 100, 250, 500))
 # Add mean and median points
-p <- p + stat_summary(fun=median, geom='point', shape=16, size=2, fill='black', color='black')
-p <- p + stat_summary(fun=mean, geom='point', shape=8, size=2, fill='black', color='black')
+p <- p + stat_summary(fun=median, geom='point', shape=16, size=2, fill='darkorange', color='darkorange')
+p <- p + stat_summary(fun=mean, geom='point', shape=8, size=2, fill='darkgreen', color='darkgreen')
 # Add labels to mean and median points, and max value
-p <- p + stat_summary(fun.data=function(x) data.frame(y=median(x), label=round(median(x)+0.5,0)), geom='text', hjust=-1)
-p <- p + stat_summary(fun.data=function(x) data.frame(y=mean(x), label=round(mean(x)+0.5,0)), geom='text', hjust=2)
-p <- p + stat_summary(fun=max, geom='text', label=aggregate(number_of_tests_executed ~ operator, df, FUN=max)$'number_of_tests_executed', vjust=-0.5)
+p <- p + stat_summary(fun.data=function(x) data.frame(y=median(x), label=round(median(x),0)), geom='text', hjust=2, color='darkorange')
+p <- p + stat_summary(fun.data=function(x) data.frame(y=mean(x), label=round(mean(x),0)), geom='text', hjust=-1, color='darkgreen')
+p <- p + stat_summary(fun=max, geom='text', label=aggregate(number_of_tests_executed ~ operator, df, FUN=max)$'number_of_tests_executed', vjust=-0.5, color='purple')
 # Display overall avarege as a horizontal line.  To achieve that, and because
 # there are different facets, a data.frame must be create with positions of those
 # lines.
@@ -77,7 +77,7 @@ p <- p + facet_grid(mutation_operator_type ~ ., scale='free_x', space='free_x')
 # Change x axis label
 p <- p + scale_x_discrete(name='Algorithm')
 # Change y axis label and control its scale
-p <- p + scale_y_continuous(name='# Tests\nlog2 scale', trans='log2', labels=function(x) format(round(x, 2), scientific=FALSE))
+p <- p + coord_trans(y='log10', expand=TRUE) + scale_y_continuous(name='# Tests')
 # Add mean and median points
 p <- p + stat_summary(fun=median, geom='point', shape=16, size=2, fill='black', color='black')
 p <- p + stat_summary(fun=mean, geom='point', shape=8, size=2, fill='black', color='black')

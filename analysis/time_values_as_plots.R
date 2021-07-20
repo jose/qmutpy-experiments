@@ -65,17 +65,22 @@ melt <- reshape_and_melt(df, c('operator', 'mutation_operator_type', 'target'))
 # Label
 plot_label('Distribution as boxplot')
 # Basic box plot with colors by groups
-p <- ggplot(melt, aes(x=operator, y=value, fill=variable)) + geom_violin()
+p <- ggplot(melt, aes(x=operator, y=value, fill=variable)) + geom_violin(position=position_dodge(1))
 # Facets
 p <- p + facet_grid( ~ mutation_operator_type, scale='free', space='free')
 # Change x axis label
 p <- p + scale_x_discrete(name='Operator')
 # Change y axis label and control its scale
-p <- p + scale_y_continuous(name='Time (seconds)\n(log scale)', trans='log', labels=function(x) format(round(x, 2), scientific=FALSE))
-# Add max values to each bar
+p <- p + coord_trans(y='log10', expand=TRUE) + scale_y_continuous(name='Time (seconds)', breaks=c(0.1, 0.5, 1.0, 2.5, 5.0, 10.0, 25.0, 50.0, 100.0))
+# Add max values to 'Generate mutant' violins (i.e., the most expensive one)
 max_df <- aggregate(value ~ operator + variable + mutation_operator_type, melt, FUN=max)
+max_df <- max_df[max_df$'variable' == 'Generate mutant', ]
 max_df$'value' <- round(max_df$'value',2)
+# max_df$'value'[max_df$'value' == 0.00] <- 0.01 # TODO
 p <- p + geom_text(mapping=aes(x=operator, y=value, label=value), data=max_df, position=position_dodge(width=0.9), vjust=-0.50)
+# Add median and mean per mutation operator
+p <- p + stat_summary(fun=median, geom='point', shape=16, size=2, fill='darkorange', color='darkorange')
+p <- p + stat_summary(fun=mean, geom='point', shape=8, size=2, fill='darkgreen', color='darkgreen')
 # Remove legend's title and move it to the top
 p <- p + theme(legend.title=element_blank(), legend.position='top')
 # Plot it

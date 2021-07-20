@@ -69,7 +69,7 @@ plot_label('Killed by')
 # Label
 plot_label('By type')
 # Basic box plot with colors by groups
-p <- ggplot(df, aes(x=killer_type)) + geom_bar(colour='black')
+p <- ggplot(df, aes(x=killer_type)) + geom_bar()
 # # Change x axis label
 p <- p + scale_x_discrete(name='')
 # Change y axis label
@@ -91,13 +91,13 @@ print(p)
 # Label
 plot_label('By operator')
 # Basic box plot with colors by groups
-p <- ggplot(df, aes(x=operator, fill=killer_type)) + geom_bar(colour='black', position='dodge')
+p <- ggplot(df, aes(x=operator, fill=killer_type)) + geom_bar(position='dodge')
 # Facets
 p <- p + facet_grid( ~ mutation_operator_type, scale='free', space='free')
 # Change x axis label
 p <- p + scale_x_discrete(name='Operator')
 # Change y axis label
-p <- p + scale_y_continuous(name='# Occurrences\n(log2 scale)', trans='log2', labels=function(x) format(round(x, 2), scientific=FALSE))
+p <- p + scale_y_continuous(name='# Occurrences')
 # Add labels over bars
 p <- p + stat_count(geom='text', colour='black', size=3.5, aes(label=..count..), position=position_dodge(width=0.9), vjust=-0.50)
 # Remove legend's title and move it to the top
