@@ -57,8 +57,6 @@ for (mutation_operator_type in unique(df$'mutation_operator_type')) {
     mask <- df$'mutation_operator_type' == mutation_operator_type & df$'operator' == mutation_operator
     if (nrow(df[mask, ]) > 0) {
       avgs <- c(avgs, mean(df$'number_of_tests_executed'[mask]))
-    } else {
-      avgs <- c(avgs, 0)
     }
   }
   hlines <- rbind(hlines, data.frame(mutation_operator_type=mutation_operator_type, y=mean(avgs)))
@@ -96,15 +94,13 @@ p <- p + stat_summary(fun=max, geom='text', label=aggregate(number_of_tests_exec
 # there are different facets, a data.frame must be create with positions of those
 # lines.
 hlines <- data.frame()
-for (mutation_operator_type in unique(df$'mutation_operator_type')) { # TODO adapt the following code to consider programs with 0 killed mutants when computing the average
+for (mutation_operator_type in unique(df$'mutation_operator_type')) {
   short_targets <- unique(df$'short_target'[df$'mutation_operator_type' == mutation_operator_type])
   avgs <- c()
   for (short_target in short_targets) {
     mask <- df$'mutation_operator_type' == mutation_operator_type & df$'short_target' == short_target
     if (nrow(df[mask, ]) > 0) {
       avgs <- c(avgs, mean(df$'number_of_tests_executed'[mask]))
-    } else {
-      avgs <- c(avgs, 0)
     }
   }
   hlines <- rbind(hlines, data.frame(mutation_operator_type=mutation_operator_type, y=mean(avgs)))
