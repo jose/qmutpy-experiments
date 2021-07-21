@@ -167,10 +167,6 @@ sed -i "s|$QUANTUM_FRAMEWORK_ROOT_PATH|$QUANTUM_FRAMEWORK_TMP_DIR|g" "$QUANTUM_F
 sed -i "s|$QUANTUM_FRAMEWORK_ROOT_PATH|$QUANTUM_FRAMEWORK_TMP_DIR|g" "$QUANTUM_FRAMEWORK_TMP_DIR/env/lib/python3.7/site-packages/setuptools.pth" || die "[ERROR] Failed to adapt $QUANTUM_FRAMEWORK_TMP_DIR/env/lib/python3.7/site-packages/setuptools.pth file!"
 sed -i "s|$PYENV_ROOT_PATH|$TMP_DIR/pyenv|g" "$QUANTUM_FRAMEWORK_TMP_DIR/env/pyvenv.cfg" || die "[ERROR] Failed to adapt $QUANTUM_FRAMEWORK_TMP_DIR/env/pyvenv.cfg file!"
 
-# Debug # TODO remove me
-cat "$QUANTUM_FRAMEWORK_TMP_DIR/env/lib/python3.7/site-packages/setuptools.pth" || die
-cat "$QUANTUM_FRAMEWORK_TMP_DIR/env/pyvenv.cfg" || die
-
 #
 # Augment existing test cases
 #
