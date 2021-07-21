@@ -102,7 +102,8 @@ while read -r mutation_operator_row; do
     exp_dir="$REPORT_OUTPUT_DIR/$QUANTUM_FRAMEWORK_NAME/$algorithm_name/$mutation_operator_id"
     mkdir -p "$exp_dir" || die "[ERROR] Failed to create $exp_dir!"
 
-    report_file="$exp_dir/data.yaml"
+    yaml_report_file="$exp_dir/data.yaml"
+    csv_report_file="$exp_dir/data.csv"
     log_file="$exp_dir/log.txt"
     echo "QUANTUM_FRAMEWORK_NAME: $QUANTUM_FRAMEWORK_NAME"                  > "$log_file"
     echo "ALGORITHM_FULL_NAME: $algorithm_full_name"                       >> "$log_file"
@@ -110,13 +111,13 @@ while read -r mutation_operator_row; do
     echo "MUTATION_OPERATOR_ID: $mutation_operator_id"                     >> "$log_file"
 
     echo "bash \"$SCRIPT_DIR/run-qmutpy.sh\" \
-          --quantum_framework_name \"$QUANTUM_FRAMEWORK_NAME\" \
           --quantum_framework_root_path \"$QUANTUM_FRAMEWORK_ROOT_PATH\" \
           --algorithm_name \"$algorithm_name\" \
           --algorithm_full_name \"$algorithm_full_name\" \
           --algorithm_test_suite_full_name \"$algorithm_test_suite_full_name\" \
           --mutation_operator \"$mutation_operator_id\" \
-          --report_output_file \"$report_file\" >> \"$log_file\" 2>&1" >> "$JOBS_FILE_PATH"
+          --yaml_report_output_file \"$yaml_report_file\" \
+          --csv_report_output_file \"$csv_report_file\" >> \"$log_file\" 2>&1" >> "$JOBS_FILE_PATH"
 
   done < <(tail -n +2 "$QUANTUM_SUBJECTS_FILE_PATH")
 done < <(tail -n +2 "$QUANTUM_MUTATION_OPERATORS_FILE_PATH")
