@@ -52,7 +52,7 @@ COVERAGE_DIR="$SCRIPT_DIR/tests-coverage"
 # Check whether COVERAGE_DIR exits
 [ -d "$COVERAGE_DIR" ] || die "[ERROR] $COVERAGE_DIR does not exist!"
 
-JSON_TO_CSV_SCRIPT="$COVERAGE_DIR/json2csv.py"
+JSON_TO_CSV_SCRIPT="$SCRIPT_DIR/utils/json2csv.py"
 # Check whether JSON_TO_CSV_SCRIPT exits
 [ -s "$JSON_TO_CSV_SCRIPT" ] || die "[ERROR] $JSON_TO_CSV_SCRIPT does not exist!"
 
