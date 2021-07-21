@@ -152,7 +152,7 @@ rm -rf "$TMP_DIR"
 mkdir -p "$TMP_DIR"
 
 # Framework
-QUANTUM_FRAMEWORK_TMP_DIR="$QUANTUM_FRAMEWORK_TMP_DIR/framework"
+QUANTUM_FRAMEWORK_TMP_DIR="$TMP_DIR/framework"
 mkdir -p "$QUANTUM_FRAMEWORK_TMP_DIR"
 rsync -avzP "$QUANTUM_FRAMEWORK_ROOT_PATH/" "$QUANTUM_FRAMEWORK_TMP_DIR/" || die "[ERROR] Failed to make a copy of $QUANTUM_FRAMEWORK_ROOT_PATH!"
 # Enviroment dependencies
