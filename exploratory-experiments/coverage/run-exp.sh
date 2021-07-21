@@ -48,6 +48,10 @@ done
 [ "$QUANTUM_FRAMEWORK_ROOT_PATH" != "" ] || die "[ERROR] Missing --quantum_framework_root_path argument!"
 [ "$PYENV_ROOT_PATH" != "" ]             || die "[ERROR] Missing --pyenv_root_path argument!"
 
+# From relative to full paths
+QUANTUM_FRAMEWORK_ROOT_PATH=$(cd "$QUANTUM_FRAMEWORK_ROOT_PATH" && pwd)
+PYENV_ROOT_PATH=$(cd "$PYENV_ROOT_PATH" && pwd)
+
 # Check whether QUANTUM_FRAMEWORK_ROOT_PATH exits
 [ -d "$QUANTUM_FRAMEWORK_ROOT_PATH" ] || die "[ERROR] $QUANTUM_FRAMEWORK_ROOT_PATH does not exist!"
 # Check whether PYENV_ROOT_PATH exits
