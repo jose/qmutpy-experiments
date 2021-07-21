@@ -64,7 +64,7 @@ TEST_COVERAGE_DATA_DIR="$SCRIPT_DIR/../../qiskit-aqua-support/tests-coverage-dat
 
 PATCH="$SCRIPT_DIR/non-covered-to-covered-code.patch"
 # Check whether PATCH exits
-[ -d "$PATCH" ] || die "[ERROR] $PATCH does not exist!"
+[ -s "$PATCH" ] || die "[ERROR] $PATCH does not exist!"
 
 # ------------------------------------------------------------------------- Util
 
