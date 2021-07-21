@@ -12,7 +12,7 @@
 #
 # ------------------------------------------------------------------------------
 
-SCRIPT_DIR=$(cd `dirname $0` && pwd)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" > /dev/null 2>&1 && pwd)"
 source "$SCRIPT_DIR/../experiments/utils.sh" || exit 1
 
 # ------------------------------------------------------------------------- Args
