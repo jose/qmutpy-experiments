@@ -53,10 +53,6 @@ mkdir -p "$COVERAGE_DIR"
 # Check whether COVERAGE_DIR exits
 [ -d "$COVERAGE_DIR" ] || die "[ERROR] $COVERAGE_DIR does not exist!"
 
-JSON_TO_CSV_SCRIPT="$SCRIPT_DIR/utils/json2csv.py"
-# Check whether JSON_TO_CSV_SCRIPT exits
-[ -s "$JSON_TO_CSV_SCRIPT" ] || die "[ERROR] $JSON_TO_CSV_SCRIPT does not exist!"
-
 TEST_COVERAGE_CSV="$SCRIPT_DIR/tests-coverage.csv"
 rm -f "$TEST_COVERAGE_CSV"
 
