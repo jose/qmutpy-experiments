@@ -143,27 +143,29 @@ hostname
 # runtime dependencies
 #
 
-QUANTUM_FRAMEWORK_TMP_DIR="/tmp/$USER-$$"
-rm -rf "$QUANTUM_FRAMEWORK_TMP_DIR"
-mkdir -p "$QUANTUM_FRAMEWORK_TMP_DIR"
+TMP_DIR="/tmp/$USER-$$"
+rm -rf "$TMP_DIR"
+mkdir -p "$TMP_DIR"
+
 # Framework
-mkdir -p "$QUANTUM_FRAMEWORK_TMP_DIR/framework/"
-rsync -avzP "$QUANTUM_FRAMEWORK_ROOT_PATH/" "$QUANTUM_FRAMEWORK_TMP_DIR/framework/" || die "[ERROR] Failed to make a copy of $QUANTUM_FRAMEWORK_ROOT_PATH!"
+QUANTUM_FRAMEWORK_TMP_DIR="$QUANTUM_FRAMEWORK_TMP_DIR/framework"
+mkdir -p "$QUANTUM_FRAMEWORK_TMP_DIR"
+rsync -avzP "$QUANTUM_FRAMEWORK_ROOT_PATH/" "$QUANTUM_FRAMEWORK_TMP_DIR/" || die "[ERROR] Failed to make a copy of $QUANTUM_FRAMEWORK_ROOT_PATH!"
 # Enviroment dependencies
-mkdir -p "$QUANTUM_FRAMEWORK_TMP_DIR/pyenv/"
-rsync -avzP "$PYENV_ROOT_PATH/" "$QUANTUM_FRAMEWORK_TMP_DIR/pyenv/" || die "[ERROR] Failed to make a copy of $PYENV_ROOT_PATH!"
+mkdir -p "$TMP_DIR/pyenv/"
+rsync -avzP "$PYENV_ROOT_PATH/" "$TMP_DIR/pyenv/" || die "[ERROR] Failed to make a copy of $PYENV_ROOT_PATH!"
 
 #
 # Adapt paths
 #
 
-sed -i "s|$QUANTUM_FRAMEWORK_ROOT_PATH|$QUANTUM_FRAMEWORK_TMP_DIR/framework|g" "$QUANTUM_FRAMEWORK_TMP_DIR/framework/env/bin/activate" || die "[ERROR] Failed to adapt $QUANTUM_FRAMEWORK_TMP_DIR/framework/env/bin/activate script!"
-sed -i "s|$QUANTUM_FRAMEWORK_ROOT_PATH|$QUANTUM_FRAMEWORK_TMP_DIR/framework|g" "$QUANTUM_FRAMEWORK_TMP_DIR/framework/env/lib/python3.7/site-packages/setuptools.pth" || die "[ERROR] Failed to adapt $QUANTUM_FRAMEWORK_TMP_DIR/framework/env/lib/python3.7/site-packages/setuptools.pth file!"
-sed -i "s|$PYENV_ROOT_PATH|$QUANTUM_FRAMEWORK_TMP_DIR/pyenv|g" "$QUANTUM_FRAMEWORK_TMP_DIR/framework/env/pyvenv.cfg" || die "[ERROR] Failed to adapt $QUANTUM_FRAMEWORK_TMP_DIR/framework/env/pyvenv.cfg file!"
+sed -i "s|$QUANTUM_FRAMEWORK_ROOT_PATH|$QUANTUM_FRAMEWORK_TMP_DIR|g" "$QUANTUM_FRAMEWORK_TMP_DIR/env/bin/activate" || die "[ERROR] Failed to adapt $QUANTUM_FRAMEWORK_TMP_DIR/env/bin/activate script!"
+sed -i "s|$QUANTUM_FRAMEWORK_ROOT_PATH|$QUANTUM_FRAMEWORK_TMP_DIR|g" "$QUANTUM_FRAMEWORK_TMP_DIR/env/lib/python3.7/site-packages/setuptools.pth" || die "[ERROR] Failed to adapt $QUANTUM_FRAMEWORK_TMP_DIR/env/lib/python3.7/site-packages/setuptools.pth file!"
+sed -i "s|$PYENV_ROOT_PATH|$TMP_DIR/pyenv|g" "$QUANTUM_FRAMEWORK_TMP_DIR/env/pyvenv.cfg" || die "[ERROR] Failed to adapt $QUANTUM_FRAMEWORK_TMP_DIR/env/pyvenv.cfg file!"
 
 # Debug # TODO remove me
-cat "$QUANTUM_FRAMEWORK_TMP_DIR/framework/env/lib/python3.7/site-packages/setuptools.pth" || die
-cat "$QUANTUM_FRAMEWORK_TMP_DIR/framework/env/pyvenv.cfg" || die
+cat "$QUANTUM_FRAMEWORK_TMP_DIR/env/lib/python3.7/site-packages/setuptools.pth" || die
+cat "$QUANTUM_FRAMEWORK_TMP_DIR/env/pyvenv.cfg" || die
 
 #
 # Augment existing test cases
@@ -220,7 +222,7 @@ run_analysis \
   "544" || die
 
 # Clean up
-rm -rf "$QUANTUM_FRAMEWORK_TMP_DIR"
+rm -rf "$TMP_DIR"
 
 echo "Job finished at $(date)"
 echo "DONE!"
