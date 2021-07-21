@@ -48,7 +48,8 @@ QUANTUM_SUBJECTS_FILE_PATH="$SCRIPT_DIR/subjects.csv"
 # Check whether QUANTUM_SUBJECTS_FILE_PATH exits
 [ -s "$QUANTUM_SUBJECTS_FILE_PATH" ] || die "[ERROR] $QUANTUM_SUBJECTS_FILE_PATH does not exist or it is empty!"
 
-COVERAGE_DIR="$SCRIPT_DIR/tests-coverage"
+COVERAGE_DIR="$SCRIPT_DIR/tests-coverage-data"
+mkdir -p "$COVERAGE_DIR"
 # Check whether COVERAGE_DIR exits
 [ -d "$COVERAGE_DIR" ] || die "[ERROR] $COVERAGE_DIR does not exist!"
 
