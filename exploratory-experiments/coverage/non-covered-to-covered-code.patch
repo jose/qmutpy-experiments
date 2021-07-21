@@ -1,0 +1,39 @@
+diff --git a/test/aqua/test_hhl.py b/test/aqua/test_hhl.py
+index 3ea69302..34099ba2 100644
+--- a/test/aqua/test_hhl.py
++++ b/test/aqua/test_hhl.py
+@@ -18,7 +18,7 @@ from test.aqua import QiskitAquaTestCase
+
+ import numpy as np
+ from ddt import ddt, idata, data, unpack
+-from qiskit import BasicAer, QuantumCircuit
++from qiskit import BasicAer, QuantumCircuit, execute
+ from qiskit.quantum_info import state_fidelity
+
+ from qiskit.circuit.library import QFT
+@@ -109,6 +109,11 @@ class TestHHL(QiskitAquaTestCase):
+         self.log.debug('fidelity HHL to algebraic: %s', fidelity)
+         self.log.debug('probability of result:     %s', hhl_result.probability_result)
+
++        qc = algo.construct_circuit(True)
++        result = execute(qc, backend = BasicAer.get_backend('qasm_simulator'), shots = 1000).result()
++        counts = result.get_counts()
++        self.assertTrue(len(counts) == 2)
++
+     @data([-1, 0], [0, -1], [-1, -1])
+     def test_hhl_diagonal_negative(self, vector):
+         """ hhl diagonal negative test """
+diff --git a/test/aqua/test_vqc.py b/test/aqua/test_vqc.py
+index ba02c973..704fbbaa 100644
+--- a/test/aqua/test_vqc.py
++++ b/test/aqua/test_vqc.py
+@@ -156,6 +156,9 @@ class TestVQC(QiskitAquaTestCase):
+         self.log.debug(result['testing_accuracy'])
+         self.assertAlmostEqual(result['testing_accuracy'], 0.3333333333333333)
+
++        vector = vqc.get_optimal_vector()
++        self.assertTrue(len(vector) == 4)
++
+     def test_minibatching_gradient_based(self):
+         """Test the minibatching option with a gradient-based optimizer."""
+         n_dim = 2  # dimension of each data point
