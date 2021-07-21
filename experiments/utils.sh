@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-PWD=`pwd`
+UTILS_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" > /dev/null 2>&1 && pwd)"
 USER_HOME_DIR=$(cd ~ && pwd)
 
 export LC_ALL=en_US.UTF-8
@@ -19,7 +19,7 @@ die() {
 # Init [Simple Python Version Management: pyenv](https://github.com/pyenv/pyenv).
 #
 _init_pyenv() {
-  export PYENV_ROOT="$PWD/../tools/pyenv"
+  export PYENV_ROOT="$UTILS_SCRIPT_DIR/../tools/pyenv"
   [ -d "$PYENV_ROOT" ] || die "[ERROR] $PYENV_ROOT does not exist!"
   export PATH="$PYENV_ROOT/bin:$PATH"
 
@@ -74,7 +74,7 @@ run_coverage() {
   fi
 
   # Check environment variables
-  JSON_TO_CSV_SCRIPT="$PWD/../qiskit-aqua-support/utils/json2csv.py"
+  JSON_TO_CSV_SCRIPT="$UTILS_SCRIPT_DIR/../qiskit-aqua-support/utils/json2csv.py"
   # Check whether JSON_TO_CSV_SCRIPT exits
   [ -s "$JSON_TO_CSV_SCRIPT" ] || die "[ERROR] $JSON_TO_CSV_SCRIPT does not exist!"
 
