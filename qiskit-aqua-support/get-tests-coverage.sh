@@ -65,59 +65,29 @@ echo "PID: $$"
 echo "Job started at $(date)"
 hostname
 
-pushd . > /dev/null 2>&1
-cd "$QUANTUM_FRAMEWORK_ROOT_PATH"
-  _activate_virtual_environment || die
+while read -r subject_row; do
+  # algorithm_name,algorithm_full_name,test_suite_full_name
+  # grover,qiskit.aqua.algorithms.amplitude_amplifiers.grover,test.aqua.test_grover
 
-  while read -r subject_row; do
-    # algorithm_name,algorithm_full_name,test_suite_full_name
-    # grover,qiskit.aqua.algorithms.amplitude_amplifiers.grover,test.aqua.test_grover
+  algorithm_full_name=$(echo "$subject_row" | cut -f2 -d',')
+  algorithm_test_suite_full_name=$(echo "$subject_row" | cut -f3 -d',')
+  json_cov_file="$COVERAGE_DIR/$algorithm_full_name.json"
+  csv_cov_file="$COVERAGE_DIR/$algorithm_full_name.csv"
 
-    algorithm_full_name=$(echo "$subject_row" | cut -f2 -d',')
-    algorithm_test_suite_full_name=$(echo "$subject_row" | cut -f3 -d',')
-    json_cov_file="$COVERAGE_DIR/$algorithm_full_name.json"
-    csv_cov_file="$COVERAGE_DIR/$algorithm_full_name.csv"
+  run_coverage "$QUANTUM_FRAMEWORK_ROOT_PATH" \
+    "$algorithm_full_name" \
+    "$algorithm_test_suite_full_name" \
+    "$json_cov_file" \
+    "$csv_cov_file" \
+    "$COVERAGE_DIR/$algorithm_full_name-run.log" || die
 
-    # Remove any previously collected coverage
-    rm -f "$json_cov_file" "$csv_cov_file" ".coverage"
+  # Collect data in a single CSV
+  if [ ! -f "$TEST_COVERAGE_CSV" ]; then # header
+    head -n1 "$csv_cov_file" | sed 's|^|algorithm_full_name,test_suite_full_name,number_of_tests,number_of_tests_skipped,|g' > "$TEST_COVERAGE_CSV" || die "[ERROR] Failed to create $TEST_COVERAGE_CSV!"
+  fi
+  tail -n +2 "$csv_cov_file" | sed "s|^|$algorithm_full_name,$algorithm_test_suite_full_name,$number_of_tests,$number_of_tests_skipped,|g" >> "$TEST_COVERAGE_CSV" || die "[ERROR] Failed to populate $TEST_COVERAGE_CSV!"
 
-    # Run test suite and collect coverage
-    run_log_file="$COVERAGE_DIR/$algorithm_full_name-run.log"
-    coverage run --source="$algorithm_full_name" -m unittest "$algorithm_test_suite_full_name" > "$run_log_file" 2>&1; run_exit_code="$?"; cat "$run_log_file"
-    [ "$run_exit_code" -eq "0" ] || die "[ERROR] Failed to collect $algorithm_full_name coverage!"
-    [ -s ".coverage" ] || die "[ERROR] .coverage does not exist or it is empty!"
-
-    # Collect number of tests executed during code-coverage analysis
-    number_of_tests=$(grep -E "^Ran [0-9]+ test[s]? in " "$run_log_file" | cut -f2 -d' ')
-    [ "$?" -eq "0" ] || die "[ERROR] Failed to collect number of tests executed!"
-    [ "$number_of_tests" != "" ] || die "[ERROR] number of tests executed cannot be empty!"
-
-    # Collect number of skipped tests
-    number_of_tests_skipped=0
-    if grep -Eq "^OK \(skipped=[1-9]+\)" "$run_log_file"; then
-      number_of_tests_skipped=$(grep -E "^OK \(skipped=[1-9]+\)" "$run_log_file" | cut -f2 -d'=' | cut -f1 -d')')
-    fi
-    [ "$number_of_tests_skipped" != "" ] || die "[ERROR] number of tests skipped cannot be empty!"
-
-    # Print to stdout the coverage collected
-    coverage report -m "$(echo $algorithm_full_name | tr '.' '/').py" || die "[ERROR] Failed to run coverage report for $algorithm_full_name!"
-
-    # Print to a JSON file the coverage collected
-    coverage json -o "$json_cov_file" --pretty-print --include="$(echo $algorithm_full_name | tr '.' '/').py" || die "[ERROR] Failed to print to JSON file the coverage collected for $algorithm_full_name!"
-    [ -s "$json_cov_file" ] || die "[ERROR] $json_cov_file does not exist or it is empty!"
-
-    # Convert the auto generated JSON to CSV
-    python "$JSON_TO_CSV_SCRIPT" "$json_cov_file" "$csv_cov_file" || die "[ERROR] Failed to convert $json_cov_file into $csv_cov_file!"
-
-    # Collect data in a single CSV
-    if [ ! -f "$TEST_COVERAGE_CSV" ]; then # header
-      head -n1 "$csv_cov_file" | sed 's|^|algorithm_full_name,test_suite_full_name,number_of_tests,number_of_tests_skipped,|g' > "$TEST_COVERAGE_CSV" || die "[ERROR] Failed to create $TEST_COVERAGE_CSV!"
-    fi
-    tail -n +2 "$csv_cov_file" | sed "s|^|$algorithm_full_name,$algorithm_test_suite_full_name,$number_of_tests,$number_of_tests_skipped,|g" >> "$TEST_COVERAGE_CSV" || die "[ERROR] Failed to populate $TEST_COVERAGE_CSV!"
-  done < <(tail -n +2 "$QUANTUM_SUBJECTS_FILE_PATH")
-
-  _deactivate_virtual_environment || die
-popd > /dev/null 2>&1
+done < <(tail -n +2 "$QUANTUM_SUBJECTS_FILE_PATH")
 
 echo "Job finished at $(date)"
 echo "DONE!"
