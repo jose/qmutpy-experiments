@@ -120,6 +120,7 @@ run_analysis() {
    num_mutants_killed_original_test_suite=$(grep ",$mutation_operator,killed," "$original_csv_report_output_file" | wc -l)
   num_mutants_killed_augmented_test_suite=$(grep ",$mutation_operator,killed," "$csv_report_output_file" | wc -l)
   [ "$num_mutants_killed_augmented_test_suite" -ge "$num_mutants_killed_original_test_suite" ] || die "[ERROR] Augmented test suite killed $num_mutants_killed_augmented_test_suite mutants whereas the original test suite killed $num_mutants_killed_original_test_suite mutants!"
+  echo "[INFO] Augmented test suite killed $num_mutants_killed_augmented_test_suite mutants whereas the original test suite killed $num_mutants_killed_original_test_suite mutants."
 
   return 0
 }
