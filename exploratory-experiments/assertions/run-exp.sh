@@ -157,9 +157,8 @@ rsync -avzP "$PYENV_ROOT_PATH/" "$TMP_DIR/pyenv/" || die "[ERROR] Failed to make
 # Adapt paths
 #
 
-sed -i "s|$QUANTUM_FRAMEWORK_ROOT_PATH|$QUANTUM_FRAMEWORK_TMP_DIR|g" "$QUANTUM_FRAMEWORK_TMP_DIR/env/bin/activate" || die "[ERROR] Failed to adapt $QUANTUM_FRAMEWORK_TMP_DIR/env/bin/activate script!"
-sed -i "s|$QUANTUM_FRAMEWORK_ROOT_PATH|$QUANTUM_FRAMEWORK_TMP_DIR|g" "$QUANTUM_FRAMEWORK_TMP_DIR/env/lib/python3.7/site-packages/setuptools.pth" || die "[ERROR] Failed to adapt $QUANTUM_FRAMEWORK_TMP_DIR/env/lib/python3.7/site-packages/setuptools.pth file!"
-sed -i "s|$PYENV_ROOT_PATH|$TMP_DIR/pyenv|g" "$QUANTUM_FRAMEWORK_TMP_DIR/env/pyvenv.cfg" || die "[ERROR] Failed to adapt $QUANTUM_FRAMEWORK_TMP_DIR/env/pyvenv.cfg file!"
+find "$QUANTUM_FRAMEWORK_TMP_DIR" -type f -exec sed -i "s|$QUANTUM_FRAMEWORK_ROOT_PATH|$QUANTUM_FRAMEWORK_TMP_DIR|g" {} \;
+find "$QUANTUM_FRAMEWORK_TMP_DIR" -type f -exec sed -i "s|$PYENV_ROOT_PATH|$TMP_DIR/pyenv|g" {} \;
 
 #
 # Augment existing test cases
