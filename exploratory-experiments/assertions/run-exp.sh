@@ -109,7 +109,7 @@ run_analysis() {
 
   # Check whether mutants killed by the original test suite are still killed by
   # the augmented test suite
-  original_csv_report_output_file="$MUTATION_DATA_DIR/$algorithm_name/$mutation_operator/data.csv"
+  original_csv_report_output_file="$MUTATION_DATA_DIR_PATH/$algorithm_name/$mutation_operator/data.csv"
   [ -s "$original_csv_report_output_file" ] || die "[ERROR] $original_csv_report_output_file does not exist or it is empty!"
   while read -r row; do
     grep ",$row," "$csv_report_output_file" || die "[ERROR] $row does not occur in $csv_report_output_file and therefore mutant killed by the original test suite is not killed by the augmented test suite!"
