@@ -1,0 +1,15 @@
+diff --git a/test/aqua/test_shor.py b/test/aqua/test_shor.py
+index c752a59e..6f13cb31 100644
+--- a/test/aqua/test_shor.py
++++ b/test/aqua/test_shor.py
+@@ -35,6 +35,10 @@ class TestShor(QiskitAquaTestCase):
+         result_dict = shor.run(QuantumInstance(BasicAer.get_backend(backend), shots=1000))
+         self.assertListEqual(result_dict['factors'][0], factors)
+         self.assertTrue(result_dict["total_counts"] >= result_dict["successful_counts"])
++        self.assertTrue(result_dict["total_counts"] >= 55)
++        self.assertTrue(result_dict["total_counts"] <= 75)
++        self.assertTrue(result_dict["successful_counts"] >= 10)
++        self.assertTrue(result_dict["successful_counts"] <= 25)
+
+     @data(5, 7)
+     def test_shor_no_factors(self, n_v):
