@@ -144,9 +144,14 @@ mkdir -p "$TMP_DIR"
 QUANTUM_FRAMEWORK_TMP_DIR="$TMP_DIR/framework"
 mkdir -p "$QUANTUM_FRAMEWORK_TMP_DIR"
 rsync -avzP "$QUANTUM_FRAMEWORK_ROOT_PATH/" "$QUANTUM_FRAMEWORK_TMP_DIR/" || die "[ERROR] Failed to make a copy of $QUANTUM_FRAMEWORK_ROOT_PATH!"
+# Remove quantum project's package, if any
+rm -rf "$QUANTUM_FRAMEWORK_TMP_DIR/build"
+rm -rf "$QUANTUM_FRAMEWORK_TMP_DIR/dist"
+rm -rf "$QUANTUM_FRAMEWORK_TMP_DIR/env/lib/python3.7/site-packages/qiskit_aqua-0.9.2-py3.7.egg"
 # Enviroment dependencies
 mkdir -p "$TMP_DIR/pyenv/"
 rsync -avzP "$PYENV_ROOT_PATH/" "$TMP_DIR/pyenv/" || die "[ERROR] Failed to make a copy of $PYENV_ROOT_PATH!"
+
 
 #
 # Adapt paths
@@ -165,7 +170,7 @@ cd "$QUANTUM_FRAMEWORK_TMP_DIR"
   git apply "$PATCH" || die "[ERROR] Failed to apply $PATCH!"
   # Build modified code
   _activate_virtual_environment || die
-    python setup.py install || die "[ERROR] Failed to build modified code!"
+    python setup.py install --force || die "[ERROR] Failed to build modified code!"
   _deactivate_virtual_environment || die
 popd > /dev/null 2>&1
 
