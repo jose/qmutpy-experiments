@@ -72,7 +72,7 @@ set_relative_widths_to_all_facet_columns <- function(plot) {
 # ---------------------------------------------------------------- Study related
 
 CLASSIC_MUTATION_OPERATOR_TYPE_STR <- 'Classic'
-QUANTUM_MUTATION_OPERATOR_TYPE_STR <- 'Quantum-oriented'
+QUANTUM_MUTATION_OPERATOR_TYPE_STR <- 'Quantum'
 
 load_exps_data <- function(data_file='../data/qiskit-aqua-all-mutation-operators.csv') {
   # Load data
