@@ -1,4 +1,5 @@
-# This script plots the number of tests required to kill each mutant as violinplots.
+# This script plots the number of tests required to kill or timeout each mutant
+# as violinplots.
 #
 # Usage:
 #   Rscript num_tests_to_kill_a_mutant_as_plot.R <output pdf file>
@@ -17,8 +18,11 @@ OUTPUT_FILE <- args[1]
 df <- load_exps_data()
 # Discard any row for which there is no mutation data
 df <- df[!is.na(df$'operator'), ]
+# Number of tests executed when there was a timeout is equal to the total number
+# tests in the test suite
+df$'number_of_tests_executed'[!is.na(df$'status') & df$'status' == 'timeout'] <- df$'number_of_tests'[!is.na(df$'status') & df$'status' == 'timeout']
 # Selected mutants that have been 'killed'
-df <- df[!is.na(df$'status') & df$'status' == 'killed', ]
+df <- df[!is.na(df$'status') & df$'status' %in% c('killed', 'timeout'), ]
 # Select only relevant columns
 df <- subset(df, select=c(
   short_target, operator, mutation_operator_type, number_of_tests_executed
@@ -27,7 +31,7 @@ df <- subset(df, select=c(
 # Remove and create pdf file
 unlink(OUTPUT_FILE)
 pdf(file=OUTPUT_FILE, family='Helvetica', width=15, height=5)
-plot_label('Number of tests required to kill each mutant')
+plot_label('Number of tests required to kill/timeout each mutant')
 
 # Label
 plot_label('Distribution as violinplot\nper mutation operator')
@@ -108,7 +112,7 @@ for (mutation_operator_type in unique(df$'mutation_operator_type')) {
 hlines$'mutation_operator_type' <- factor(hlines$'mutation_operator_type', levels=c(CLASSIC_MUTATION_OPERATOR_TYPE_STR, QUANTUM_MUTATION_OPERATOR_TYPE_STR))
 p <- p + geom_hline(data=hlines, mapping=aes(yintercept=y), color='red')
 # Label horizontal line
-p <- p + geom_text(data=aggregate(. ~ mutation_operator_type, hlines, FUN=function(y) round(mean(y), 0)), aes(x=0.60, y=y, label=y), vjust=-0.50, color='red')
+p <- p + geom_text(data=aggregate(. ~ mutation_operator_type, hlines, FUN=function(y) round(mean(y), 0)), aes(x=length(unique(df$'short_target')) + 0.25, y=y, label=y), vjust=-0.50, color='red')
 # Remove legend and rotate x-axis 45 degrees
 p <- p + theme(legend.title=element_blank(), legend.position='none', axis.text.x=element_text(angle=30, hjust=1))
 # Plot it
