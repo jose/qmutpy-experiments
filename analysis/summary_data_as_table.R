@@ -29,10 +29,11 @@ write_table_content <- function(df, entries, column) {
 
   for (entry in entries) {
     mask <- mutation_df[[column]] == entry
-    cat(replace_string(entry, '_', '\\\\_'), sep='')
 
     num_mutants <- mutation_df$'num_mutants'[mask]
     if (dim(mutation_df[mask, ])[1] == 0 || num_mutants == 0) {
+      cat('%', sep='') # Comment out the following info
+      cat(' ', replace_string(entry, '_', '\\\\_'), sep='')
       cat(' & ', '0', sep='')
       cat(' & ', '---', sep='')
       cat(' & ', '---', sep='')
@@ -54,6 +55,7 @@ write_table_content <- function(df, entries, column) {
     num_mutants_timeout              <- mutation_df$'timeout'[mask]
     stopifnot(num_mutants <= num_mutants_killed + num_mutants_survived_covered + num_mutants_survived_not_covered + num_mutants_incompetent + num_mutants_timeout)
 
+    cat(replace_string(entry, '_', '\\\\_'), sep='')
     cat(' & ', num_mutants, sep='')
     if (column == 'short_target') {
       cat(' & ', sprintf("%.0f", round(mutation_df$'num_lines_mutated'[mask], 0)), sep='')
@@ -117,7 +119,7 @@ unlink(per_algorithm_tex_file)
 sink(per_algorithm_tex_file, append=FALSE, split=TRUE)
 
 cat('\\begin{tabular}{@{\\extracolsep{\\fill}} l rrrrrrrr} \\toprule\n', sep='')
-cat('\\multicolumn{1}{c}{Algorithm} & \\multicolumn{1}{c}{\\# Mutants} & \\multicolumn{1}{c}{\\# Mutated LOC} & \\multicolumn{1}{c}{\\# Killed} & \\multicolumn{1}{c}{\\# Survived} & \\multicolumn{1}{c}{\\# Incompetent} & \\multicolumn{1}{c}{\\# Timeout} & \\multicolumn{1}{c}{\\% Score} & \\multicolumn{1}{c}{Runtime} \\\\\n', sep='')
+cat('\\multicolumn{1}{c}{Quantum Program} & \\multicolumn{1}{c}{\\# Mutants} & \\multicolumn{1}{c}{\\# Mutated LOC} & \\multicolumn{1}{c}{\\# Killed} & \\multicolumn{1}{c}{\\# Survived} & \\multicolumn{1}{c}{\\# Incompetent} & \\multicolumn{1}{c}{\\# Timeout} & \\multicolumn{1}{c}{\\% Score} & \\multicolumn{1}{c}{Runtime} \\\\\n', sep='')
 
 for (type in c(CLASSIC_MUTATION_OPERATOR_TYPE_STR, QUANTUM_MUTATION_OPERATOR_TYPE_STR)) {
   cat('\\midrule\n', sep='')
