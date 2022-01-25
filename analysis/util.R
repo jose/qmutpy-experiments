@@ -161,6 +161,22 @@ process_targets_mutation_data <- function(df) {
   # code for each there was no mutant)
   df <- df[!is.na(df$'operator'), ]
 
+  # Compute time per mutation
+  # Accurate measurement
+  #
+  # time_to_mutate_module = time_to_run_tests_on_mutated_modules + time_to_create_mutated_modules + time_to_create_targets_ast + time_to_generate_mutated_asts
+  # 62719.37 = 62703.24 + 0.09711957 + 0.0825491 + 15.94898 ~ 62719.36864867
+  # 
+  # time_to_run_tests_on_mutated_module = 4180.201
+  #
+  # df$'time_per_mutant' <- 
+  # time_per_mutant = (time_to_create_mutated_modules + time_to_create_targets_ast + time_to_generate_mutated_asts) / num mutants
+  #                   +
+  #                   time_to_run_tests_on_mutated_module
+  # Approximation
+  avg_time_per_mutant <- aggregate(time_to_run_tests_on_mutated_module ~ short_target + operator, df, FUN=mean)
+  names(avg_time_per_mutant)[names(avg_time_per_mutant) == 'time_to_run_tests_on_mutated_module'] <- 'avg_time_per_mutant'
+
   # Compute line mutation data
   #   - Number of lines with at least one mutant
   #   - Average number of mutants per mutated line
@@ -176,7 +192,7 @@ process_targets_mutation_data <- function(df) {
 
   # Reshape data at mutation operator level, as for each mutation operator we
   # might have a different number of mutations
-  dcast_df <- reshape2::dcast(df, short_target + operator + mutation_operator_type + total_time ~ status, value.var='status')
+  dcast_df <- reshape2::dcast(df, short_target + operator + mutation_operator_type + total_time ~ status, value.var='status', fun.aggregate=length)
   if (c('incompetent') %!in% colnames(dcast_df)) {
     dcast_df$'incompetent' <- 0
   }
@@ -196,6 +212,7 @@ process_targets_mutation_data <- function(df) {
   # Merge mutation data with distribution of mutated lines
   n <- nrow(dcast_df)
   dcast_df <- merge(dcast_df, mutants_distribution_df, by=c('short_target', 'mutation_operator_type'), all.x=TRUE)
+  dcast_df <- merge(dcast_df, avg_time_per_mutant, by=c('short_target', 'operator'), all.x=TRUE)
   stopifnot(n == nrow(dcast_df))
 
   # TODO in case we might need to compute non-relative mutation score, we first
