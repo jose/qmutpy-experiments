@@ -49,7 +49,14 @@ pdf(file=OUTPUT_FILE, family='Helvetica', width=10, height=8)
 plot_label('Var X vs Var Y \n Scatter Plots')
 
 # Overall Coverage vs MutationScore
-plot_label('Overall Coverage vs Mutation Score')
+kendall  <- cor.test(cov_mut_df$'line_coverage', cov_mut_df$'mutation_score_ignoring_survided_status', method=c('kendall'))
+spearman <- cor.test(cov_mut_df$'line_coverage', cov_mut_df$'mutation_score_ignoring_survided_status', method=c('spearman'), exact=FALSE)
+plot_label(paste('Overall Coverage vs Mutation Score', '\n',
+  'kendall (p-value): ', kendall$'p.value', '\n',
+  'kendall (tau): ', kendall$'estimate', '\n',
+  'spearman (p-value): ', spearman$'p.value', '\n',
+  'spearman (tau): ', spearman$'estimate', '\n', sep=''))
+
 # Basic scatter plot
 p <- ggplot(aggregate(. ~ short_target, cov_mut_df, FUN=mean), aes(x=line_coverage, y=mutation_score_ignoring_survided_status, color=short_target, shape=short_target)) + geom_point(size=3) + scale_size_area()
 # Legend
