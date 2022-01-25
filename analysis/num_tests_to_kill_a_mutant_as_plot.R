@@ -21,7 +21,7 @@ df <- df[!is.na(df$'operator'), ]
 # Number of tests executed when there was a timeout is equal to the total number
 # tests in the test suite
 df$'number_of_tests_executed'[!is.na(df$'status') & df$'status' == 'timeout'] <- df$'number_of_tests'[!is.na(df$'status') & df$'status' == 'timeout']
-# Selected mutants that have been 'killed'
+# Selected mutants that have been 'killed' or 'timeout'
 df <- df[!is.na(df$'status') & df$'status' %in% c('killed', 'timeout'), ]
 # Select only relevant columns
 df <- subset(df, select=c(
